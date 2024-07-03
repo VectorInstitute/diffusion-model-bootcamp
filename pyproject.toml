@@ -6,9 +6,11 @@ authors = ["Vector AI Engineering <fl4health@vectorinstitute.ai>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9.0,<3.13"
+python = ">=3.9.0,<3.10"
 pre-commit = "^3.7.0"
 ipykernel = "^6.29.4"
+faiss-gpu = "^1.7.2"
+prdc = "^0.2"
 
 [tool.poetry.group.synthcity.dependencies]
 torch= "1.13.1"
@@ -44,7 +46,7 @@ catalogue = "2.0.10"
 certifi = "2024.6.2"
 charset-normalizer = "3.3.2"
 cloudpathlib = "0.18.1"
-cloudpickle = "3.0.0"
+cloudpickle = "2.2.1"
 colorlog = "6.8.2"
 confection = "0.1.5"
 contourpy = "1.2.1"
@@ -160,7 +162,7 @@ tqdm = "4.66.4"
 transformers = "4.41.2"
 tsai = "0.3.9"
 typing-extensions = "4.12.2"
-urllib3 = "2.2.2"
+urllib3 = "1.26.19"
 wasabi = "1.1.3"
 weasel = "0.4.1"
 werkzeug = "3.0.3"
@@ -180,6 +182,11 @@ tomli-w = "^1.0.0"
 click = "^8.1.7"
 typer = "^0.12.3"
 
+
+[tool.poetry.group.calvaddpm.dependencies]
+sdv = "1.11.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+

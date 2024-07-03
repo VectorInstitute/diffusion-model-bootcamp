@@ -343,6 +343,44 @@ files = [
 numpy = {version = ">=1.19.0", markers = "python_version >= \"3.9\""}
 
 [[package]]
+name = "boto3"
+version = "1.34.138"
+description = "The AWS SDK for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "boto3-1.34.138-py3-none-any.whl", hash = "sha256:81518aa95fad71279411fb5c94da4b4a554a5d53fc876faca62b7b5c8737f1cb"},
+    {file = "boto3-1.34.138.tar.gz", hash = "sha256:f79c15e33eb7706f197d98d828b193cf0891966682ad3ec5e900f6f9e7362e35"},
+]
+
+[package.dependencies]
+botocore = ">=1.34.138,<1.35.0"
+jmespath = ">=0.7.1,<2.0.0"
+s3transfer = ">=0.10.0,<0.11.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
+
+[[package]]
+name = "botocore"
+version = "1.34.138"
+description = "Low-level, data-driven core of boto 3."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "botocore-1.34.138-py3-none-any.whl", hash = "sha256:84e96a954c39a6f09cae4ea95b2ae582b5ae01b5040c92507b60509c9be5377a"},
+    {file = "botocore-1.34.138.tar.gz", hash = "sha256:f558bbea96c4a4abbaeeedc477dabb00902311ba1ca6327974a6819b9f384920"},
+]
+
+[package.dependencies]
+jmespath = ">=0.7.1,<2.0.0"
+python-dateutil = ">=2.1,<3.0.0"
+urllib3 = {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""}
+
+[package.extras]
+crt = ["awscrt (==0.20.11)"]
+
+[[package]]
 name = "brotli"
 version = "1.1.0"
 description = "Python bindings for the Brotli compression library"
@@ -724,13 +762,13 @@ s3 = ["boto3"]
 
 [[package]]
 name = "cloudpickle"
-version = "3.0.0"
-description = "Pickler class to extend the standard pickle.Pickler functionality"
+version = "2.2.1"
+description = "Extended pickling support for Python objects"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.6"
 files = [
-    {file = "cloudpickle-3.0.0-py3-none-any.whl", hash = "sha256:246ee7d0c295602a036e86369c77fecda4ab17b506496730f2f576d9016fd9c7"},
-    {file = "cloudpickle-3.0.0.tar.gz", hash = "sha256:996d9a482c6fb4f33c1a35335cf8afd065d2a56e973270364840712d9131a882"},
+    {file = "cloudpickle-2.2.1-py3-none-any.whl", hash = "sha256:61f594d1f4c295fa5cd9014ceb3a1fc4a70b0de1164b94fbc2d854ccba056f9f"},
+    {file = "cloudpickle-2.2.1.tar.gz", hash = "sha256:d89684b8de9e34a2a43b3460fbca07d09d6e25ce858df4d5a44240403b6178f5"},
 ]
 
 [[package]]
@@ -855,6 +893,51 @@ docs = ["furo", "sphinx (>=7.2)", "sphinx-copybutton"]
 mypy = ["contourpy[bokeh,docs]", "docutils-stubs", "mypy (==1.8.0)", "types-Pillow"]
 test = ["Pillow", "contourpy[test-no-images]", "matplotlib"]
 test-no-images = ["pytest", "pytest-cov", "pytest-xdist", "wurlitzer"]
+
+[[package]]
+name = "copulas"
+version = "0.9.2"
+description = "Create tabular synthetic data using copulas-based modeling."
+optional = false
+python-versions = ">=3.8,<3.12"
+files = [
+    {file = "copulas-0.9.2-py2.py3-none-any.whl", hash = "sha256:c9ac99bbe3b0f30990748042b2d786e88f59abac26a33c06e8aff1d00cb5b2c2"},
+    {file = "copulas-0.9.2.tar.gz", hash = "sha256:5aab94fdc5f933227e6a0775422e1c593234f3d021006be91c33ed180097aac1"},
+]
+
+[package.dependencies]
+matplotlib = {version = ">=3.4.0,<4", markers = "python_version < \"3.10\""}
+numpy = {version = ">=1.20.0,<2", markers = "python_version < \"3.10\""}
+pandas = {version = ">=1.1.3", markers = "python_version < \"3.10\""}
+scipy = {version = ">=1.5.4,<2", markers = "python_version < \"3.10\""}
+
+[package.extras]
+dev = ["Jinja2 (>=2,<3)", "Sphinx (>=1.7.1,<3)", "autoflake (>=1.1,<2)", "autopep8 (>=1.4.3,<1.6)", "boto3 (>=1.7.47,<1.10)", "bumpversion (>=0.5.3,<0.6)", "coverage (>=4.5.1,<6)", "dlint (>=0.11.0,<0.12)", "doc8 (>=0.8.0,<0.9)", "docutils (>=0.10,<0.15)", "flake8 (>=3.7.7,<4)", "flake8-absolute-import (>=1.0,<2)", "flake8-builtins (>=1.5.3,<1.6)", "flake8-comprehensions (>=3.6.1,<3.7)", "flake8-debugger (>=4.0.0,<4.1)", "flake8-docstrings (>=1.5.0,<2)", "flake8-eradicate (>=1.1.0,<1.2)", "flake8-expression-complexity (>=0.0.9,<0.1)", "flake8-fixme (>=1.1.1,<1.2)", "flake8-mock (>=0.3,<0.4)", "flake8-multiline-containers (>=0.0.18,<0.1)", "flake8-mutable (>=1.2.0,<1.3)", "flake8-print (>=4.0.0,<4.1)", "flake8-pytest-style (>=1.5.0,<2)", "flake8-quotes (>=3.3.0,<4)", "flake8-sfs (>=0.0.3,<0.1)", "flake8-variables-names (>=0.0.4,<0.1)", "invoke", "isort (>=4.3.4,<5)", "jupyter (>=1.0.0,<2)", "m2r (>=0.2.0,<0.3)", "markupsafe (<=2.0.1)", "nbsphinx (>=0.5.0,<0.7)", "pandas-vet (>=0.2.2,<0.3)", "pep8-naming (>=0.12.1,<0.13)", "pip (>=9.0.1)", "pydocstyle (>=6.1.1,<6.2)", "pytest (>=6.2.5,<7)", "pytest-cov (>=2.6.0,<3)", "pytest-rerunfailures (>=9.0.0,<10)", "rundoc (>=0.4.3,<0.5)", "scikit-learn (>=0.24,<1.2)", "sphinx-rtd-theme (>=0.2.4,<0.5)", "tabulate (>=0.8.3,<0.9)", "tox (>=2.9.1,<4)", "twine (>=1.10.0,<4)", "urllib3 (>=1.20,<1.26)", "watchdog (>=0.8.3,<0.11)", "wheel (>=0.30.0)"]
+test = ["jupyter (>=1.0.0,<2)", "markupsafe (<=2.0.1)", "pytest (>=6.2.5,<7)", "pytest-cov (>=2.6.0,<3)", "pytest-rerunfailures (>=9.0.0,<10)", "rundoc (>=0.4.3,<0.5)", "scikit-learn (>=0.24,<1.2)"]
+tutorials = ["jupyter (>=1.0.0,<2)", "markupsafe (<=2.0.1)", "scikit-learn (>=0.24,<1.2)"]
+
+[[package]]
+name = "ctgan"
+version = "0.9.1"
+description = "Create tabular synthetic data using a conditional GAN"
+optional = false
+python-versions = "<3.12,>=3.8"
+files = [
+    {file = "ctgan-0.9.1-py3-none-any.whl", hash = "sha256:184820335f0f620e62fc95fc40fe943b9dd88cc71c73d314a6f01e3ce35d8177"},
+    {file = "ctgan-0.9.1.tar.gz", hash = "sha256:cf680f16a59df57f977f010f07372313f867e7c9e7bebff59a124bd919162cd7"},
+]
+
+[package.dependencies]
+numpy = {version = ">=1.20.0", markers = "python_version < \"3.10\""}
+pandas = {version = ">=1.1.3", markers = "python_version < \"3.10\""}
+rdt = ">=1.6.1"
+scikit-learn = {version = ">=0.24", markers = "python_version < \"3.10\""}
+torch = {version = ">=1.8.0", markers = "python_version < \"3.10\""}
+tqdm = ">=4.15"
+
+[package.extras]
+dev = ["autoflake (>=1.1,<2)", "autopep8 (>=1.4.3,<1.6)", "build (>=1.0.0,<2)", "bump-my-version (>=0.18.3,<1)", "coverage (>=4.5.1,<6)", "ctgan[test]", "dlint (>=0.11.0,<0.12)", "flake8 (>=3.7.7,<4)", "flake8-absolute-import (>=1.0,<2)", "flake8-builtins (>=1.5.3,<1.6)", "flake8-comprehensions (>=3.6.1,<3.7)", "flake8-debugger (>=4.0.0,<4.1)", "flake8-docstrings (>=1.5.0,<2)", "flake8-eradicate (>=1.1.0,<1.2)", "flake8-expression-complexity (>=0.0.9,<0.1)", "flake8-fixme (>=1.1.1,<1.2)", "flake8-mock (>=0.3,<0.4)", "flake8-multiline-containers (>=0.0.18,<0.1)", "flake8-mutable (>=1.2.0,<1.3)", "flake8-print (>=4.0.0,<4.1)", "flake8-pytest-style (>=1.5.0,<2)", "flake8-quotes (>=3.3.0,<4)", "flake8-sfs (>=0.0.3,<0.1)", "flake8-variables-names (>=0.0.4,<0.1)", "invoke", "isort (>=4.3.4,<5)", "pandas-vet (>=0.2.2,<0.3)", "pip (>=9.0.1)", "tox (>=2.9.1,<4)", "twine (>=1.10.0,<4)", "watchdog (>=0.8.3,<0.11)", "wheel (>=0.30.0)"]
+test = ["pytest (>=3.4.2)", "pytest-cov (>=2.6.0)", "pytest-rerunfailures (>=9.1.1,<10)", "pytest-runner (>=2.11.1)", "rundoc (>=0.4.3,<0.5)", "tomli (>=2.0.0,<3)"]
 
 [[package]]
 name = "cycler"
@@ -1023,6 +1106,27 @@ files = [
 ]
 
 [[package]]
+name = "deepecho"
+version = "0.5.0"
+description = "Create sequential synthetic data of mixed types using a GAN."
+optional = false
+python-versions = ">=3.8,<3.12"
+files = [
+    {file = "deepecho-0.5.0-py2.py3-none-any.whl", hash = "sha256:054de22c58d67e8db9b4b0159398afcc84563a38a7abe399031e4149c6daa940"},
+    {file = "deepecho-0.5.0.tar.gz", hash = "sha256:49afaf8305cd695f8f6dbc7969ada55c81a3048e2928712422bed98f6fbd4282"},
+]
+
+[package.dependencies]
+numpy = {version = ">=1.20.0,<2", markers = "python_version < \"3.10\""}
+pandas = {version = ">=1.1.3", markers = "python_version < \"3.10\""}
+torch = {version = ">=1.8.0", markers = "python_version < \"3.10\""}
+tqdm = ">=4.15,<5"
+
+[package.extras]
+dev = ["autoflake (>=1.1,<2)", "autopep8 (>=1.4.3,<1.6)", "bumpversion (>=0.5.3,<0.6)", "coverage (>=4.5.1,<6)", "dlint (>=0.11.0,<0.12)", "flake8 (>=3.7.7,<4)", "flake8-absolute-import (>=1.0,<2)", "flake8-builtins (>=1.5.3,<1.6)", "flake8-debugger (>=4.0.0,<4.1)", "flake8-docstrings (>=1.5.0,<2)", "flake8-eradicate (>=1.1.0,<1.2)", "flake8-expression-complexity (>=0.0.9,<0.1)", "flake8-fixme (>=1.1.1,<1.2)", "flake8-mock (>=0.3,<0.4)", "flake8-multiline-containers (>=0.0.18,<0.1)", "flake8-mutable (>=1.2.0,<1.3)", "flake8-print (>=4.0.0,<4.1)", "flake8-quotes (>=3.3.0,<4)", "flake8-sfs (>=0.0.3,<0.1)", "flake8-variables-names (>=0.0.4,<0.1)", "invoke", "isort (>=4.3.4,<5)", "jupyter (>=1.0.0,<2)", "pep8-naming (>=0.12.1,<0.13)", "pip (>=9.0.1)", "pylint (>=2.5.3,<3)", "pytest (>=3.4.2)", "pytest-cov (>=2.6.0)", "pytest-rerunfailures (>=9.0.0,<10)", "rundoc (>=0.4.3,<0.5)", "setuptools (<49.2)", "tox (>=2.9.1,<4)", "twine (>=1.10.0,<4)", "watchdog (>=0.8.3,<0.11)", "wheel (>=0.30.0)"]
+test = ["jupyter (>=1.0.0,<2)", "pytest (>=3.4.2)", "pytest-cov (>=2.6.0)", "pytest-rerunfailures (>=9.0.0,<10)", "rundoc (>=0.4.3,<0.5)"]
+
+[[package]]
 name = "dill"
 version = "0.3.8"
 description = "serialize all of Python"
@@ -1075,6 +1179,34 @@ files = [
 
 [package.extras]
 tests = ["asttokens (>=2.1.0)", "coverage", "coverage-enable-subprocess", "ipython", "littleutils", "pytest", "rich"]
+
+[[package]]
+name = "faiss-gpu"
+version = "1.7.2"
+description = "A library for efficient similarity search and clustering of dense vectors."
+optional = false
+python-versions = "*"
+files = [
+    {file = "faiss_gpu-1.7.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c98abc1aac06cb4cb94de223b3186bd4a60d15fd3cae42271604168abc081ca5"},
+    {file = "faiss_gpu-1.7.2-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:38796433b2fe43f3a602be18668969af615a3a898e897366e6997b409b0deeab"},
+    {file = "faiss_gpu-1.7.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:040a413be699077931b781e470468c6b5084342c5d5773ce8d916f04b25d8c9c"},
+    {file = "faiss_gpu-1.7.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e85a6bc975b2f233eb056584f33bbce8613c453c9024c099052a423eebabee23"},
+    {file = "faiss_gpu-1.7.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3ca9bfa2fda868f438a2f05c1d5aed53021bfaa55b25fd3ae666d2da201f3caf"},
+]
+
+[[package]]
+name = "faker"
+version = "26.0.0"
+description = "Faker is a Python package that generates fake data for you."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "Faker-26.0.0-py3-none-any.whl", hash = "sha256:886ee28219be96949cd21ecc96c4c742ee1680e77f687b095202c8def1a08f06"},
+    {file = "Faker-26.0.0.tar.gz", hash = "sha256:0f60978314973de02c00474c2ae899785a42b2cf4f41b7987e93c132a2b8a4a9"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.4"
 
 [[package]]
 name = "fastai"
@@ -1439,6 +1571,22 @@ torch = "*"
 
 [package.extras]
 full = ["pykeops"]
+
+[[package]]
+name = "graphviz"
+version = "0.20.3"
+description = "Simple Python interface for Graphviz"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "graphviz-0.20.3-py3-none-any.whl", hash = "sha256:81f848f2904515d8cd359cc611faba817598d2feaac4027b266aa3eda7b3dde5"},
+    {file = "graphviz-0.20.3.zip", hash = "sha256:09d6bc81e6a9fa392e7ba52135a9d49f1ed62526f96499325930e87ca1b5925d"},
+]
+
+[package.extras]
+dev = ["flake8", "pep8-naming", "tox (>=3)", "twine", "wheel"]
+docs = ["sphinx (>=5,<7)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
+test = ["coverage", "pytest (>=7,<8.1)", "pytest-cov", "pytest-mock (>=3)"]
 
 [[package]]
 name = "greenlet"
@@ -1819,13 +1967,13 @@ files = [
 
 [[package]]
 name = "ipykernel"
-version = "6.29.4"
+version = "6.29.5"
 description = "IPython Kernel for Jupyter"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ipykernel-6.29.4-py3-none-any.whl", hash = "sha256:1181e653d95c6808039c509ef8e67c4126b3b3af7781496c7cbfb5ed938a27da"},
-    {file = "ipykernel-6.29.4.tar.gz", hash = "sha256:3d44070060f9475ac2092b760123fadf105d2e2493c24848b6691a7c4f42af5c"},
+    {file = "ipykernel-6.29.5-py3-none-any.whl", hash = "sha256:afdb66ba5aa354b09b91379bac28ae4afebbb30e8b39510c9690afb7a10421b5"},
+    {file = "ipykernel-6.29.5.tar.gz", hash = "sha256:f093a22c4a40f8828f8e330a9c297cb93dcab13bd9678ded6de8e5cf81c56215"},
 ]
 
 [package.dependencies]
@@ -1922,6 +2070,17 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "jmespath"
+version = "1.0.1"
+description = "JSON Matching Expressions"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
+    {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
+]
 
 [[package]]
 name = "joblib"
@@ -3169,11 +3328,7 @@ files = [
 ]
 
 [package.dependencies]
-numpy = [
-    {version = ">=1.20.3", markers = "python_version < \"3.10\""},
-    {version = ">=1.23.2", markers = "python_version >= \"3.11\""},
-    {version = ">=1.21.0", markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
-]
+numpy = {version = ">=1.20.3", markers = "python_version < \"3.10\""}
 python-dateutil = ">=2.8.1"
 pytz = ">=2020.1"
 
@@ -3343,13 +3498,13 @@ xmp = ["defusedxml"]
 
 [[package]]
 name = "pip"
-version = "24.1"
+version = "24.1.1"
 description = "The PyPA recommended tool for installing Python packages."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pip-24.1-py3-none-any.whl", hash = "sha256:a775837439bf5da2c1a0c2fa43d5744854497c689ddbd9344cf3ea6d00598540"},
-    {file = "pip-24.1.tar.gz", hash = "sha256:bdae551038c0ce6a83030b4aedef27fc95f0daa683593fea22fa05e55ed8e317"},
+    {file = "pip-24.1.1-py3-none-any.whl", hash = "sha256:efca15145a95e95c00608afeab66311d40bfb73bb2266a855befd705e6bb15a0"},
+    {file = "pip-24.1.1.tar.gz", hash = "sha256:5aa64f65e1952733ee0a9a9b1f52496ebdb3f3077cc46f80a16d983b58d1180a"},
 ]
 
 [[package]]
@@ -3367,6 +3522,38 @@ files = [
 docs = ["furo (>=2023.9.10)", "proselint (>=0.13)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.25.2)"]
 test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)"]
 type = ["mypy (>=1.8)"]
+
+[[package]]
+name = "plotly"
+version = "5.22.0"
+description = "An open-source, interactive data visualization library for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "plotly-5.22.0-py3-none-any.whl", hash = "sha256:68fc1901f098daeb233cc3dd44ec9dc31fb3ca4f4e53189344199c43496ed006"},
+    {file = "plotly-5.22.0.tar.gz", hash = "sha256:859fdadbd86b5770ae2466e542b761b247d1c6b49daed765b95bb8c7063e7469"},
+]
+
+[package.dependencies]
+packaging = "*"
+tenacity = ">=6.2.0"
+
+[[package]]
+name = "prdc"
+version = "0.2"
+description = "Compute precision, recall, density, and coverage metrics for two sets of vectors."
+optional = false
+python-versions = "*"
+files = [
+    {file = "prdc-0.2-py3-none-any.whl", hash = "sha256:570ae82fb57a0b0ea3e6a131354a61e23aca79716b77cb9917f3a98465b72120"},
+    {file = "prdc-0.2.tar.gz", hash = "sha256:247466c31743f334a2714dbd60ef62e523877c4162ddb7dc63a404cada09316f"},
+]
+
+[package.dependencies]
+joblib = "*"
+numpy = "*"
+scikit-learn = "*"
+scipy = "*"
 
 [[package]]
 name = "pre-commit"
@@ -4306,6 +4493,29 @@ files = [
 ]
 
 [[package]]
+name = "rdt"
+version = "1.12.1"
+description = "Reversible Data Transforms"
+optional = false
+python-versions = "<3.13,>=3.8"
+files = [
+    {file = "rdt-1.12.1-py3-none-any.whl", hash = "sha256:6d5b76482de1595411d1b6e5a0ae0ccbf2343b374150b78049a13e5a4c77c7b2"},
+    {file = "rdt-1.12.1.tar.gz", hash = "sha256:7129639102d4aa9f88ea353699c4ee50adf271f6d48ac66e7c457e8e942c5dde"},
+]
+
+[package.dependencies]
+Faker = ">=17"
+numpy = {version = ">=1.21.0", markers = "python_version < \"3.10\""}
+pandas = {version = ">=1.4.0", markers = "python_version < \"3.11\""}
+scikit-learn = {version = ">=1.0.2", markers = "python_version < \"3.10\""}
+scipy = {version = ">=1.7.3", markers = "python_version < \"3.10\""}
+
+[package.extras]
+copulas = ["copulas (>=0.11.0)"]
+dev = ["build (>=1.0.0,<2)", "bump-my-version (>=0.18.3,<1)", "coverage (>=4.5.12,<8)", "invoke", "pip (>=9.0.1)", "rdt[test]", "ruff (>=0.3.2,<1)", "tabulate (>=0.8.9,<1)", "tox (>=2.9.1,<5)", "twine (>=1.10.0,<6)", "watchdog (>=1.0.1,<5)", "wheel (>=0.30.0)"]
+test = ["jupyter (>=1.0.0,<2)", "pytest (>=3.4.2)", "pytest-cov (>=2.6.0)", "pytest-runner (>=2.11.1)", "pytest-subtests (>=0.5,<1.0)", "rdt[copulas]", "rundoc (>=0.4.3,<0.5)", "tomli (>=2.0.0,<3)"]
+
+[[package]]
 name = "redis"
 version = "5.0.6"
 description = "Python client for Redis database and key-value store"
@@ -4449,6 +4659,23 @@ pygments = ">=2.13.0,<3.0.0"
 
 [package.extras]
 jupyter = ["ipywidgets (>=7.5.1,<9)"]
+
+[[package]]
+name = "s3transfer"
+version = "0.10.2"
+description = "An Amazon S3 Transfer Manager"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "s3transfer-0.10.2-py3-none-any.whl", hash = "sha256:eca1c20de70a39daee580aef4986996620f365c4e0fda6a86100231d62f1bf69"},
+    {file = "s3transfer-0.10.2.tar.gz", hash = "sha256:0711534e9356d3cc692fdde846b4a1e4b0cb6519971860796e6bc4c7aea00ef6"},
+]
+
+[package.dependencies]
+botocore = ">=1.33.2,<2.0a.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.33.2,<2.0a.0)"]
 
 [[package]]
 name = "safetensors"
@@ -4660,19 +4887,75 @@ doc = ["jupyterlite-pyodide-kernel", "jupyterlite-sphinx (>=0.12.0)", "jupytext"
 test = ["array-api-strict", "asv", "gmpy2", "hypothesis (>=6.30)", "mpmath", "pooch", "pytest", "pytest-cov", "pytest-timeout", "pytest-xdist", "scikit-umfpack", "threadpoolctl"]
 
 [[package]]
+name = "sdmetrics"
+version = "0.13.0"
+description = "Metrics for Synthetic Data Generation Projects"
+optional = false
+python-versions = ">=3.8,<3.12"
+files = [
+    {file = "sdmetrics-0.13.0-py2.py3-none-any.whl", hash = "sha256:83a483696b034f42e5f1f3d25c4cdbbc48b4d83fa98e0ec7c2c846582b0b94c8"},
+    {file = "sdmetrics-0.13.0.tar.gz", hash = "sha256:2d277094b1081c637d90d818f23370feba745db8120d2813ede3ec024bc78a07"},
+]
+
+[package.dependencies]
+copulas = ">=0.9.0,<0.10"
+numpy = {version = ">=1.20.0,<2", markers = "python_version < \"3.10\""}
+pandas = {version = ">=1.1.3", markers = "python_version < \"3.10\""}
+plotly = ">=5.10.0,<6"
+scikit-learn = {version = ">=0.24,<2", markers = "python_version <= \"3.10\""}
+scipy = {version = ">=1.5.4,<2", markers = "python_version < \"3.10\""}
+tqdm = ">=4.15,<5"
+
+[package.extras]
+dev = ["autoflake (>=1.1,<2)", "autopep8 (>=1.4.3,<1.6)", "bumpversion (>=0.5.3,<0.6)", "coverage (>=4.5.1,<6)", "dlint (>=0.11.0,<0.12)", "flake8 (>=3.7.7,<4)", "flake8-absolute-import (>=1.0,<2)", "flake8-builtins (>=1.5.3,<1.6)", "flake8-comprehensions (>=3.6.1,<3.7)", "flake8-debugger (>=4.0.0,<4.1)", "flake8-docstrings (>=1.5.0,<2)", "flake8-eradicate (>=1.1.0,<1.2)", "flake8-expression-complexity (>=0.0.9,<0.1)", "flake8-fixme (>=1.1.1,<1.2)", "flake8-mock (>=0.3,<0.4)", "flake8-multiline-containers (>=0.0.18,<0.1)", "flake8-mutable (>=1.2.0,<1.3)", "flake8-print (>=4.0.0,<4.1)", "flake8-pytest-style (>=1.5.0,<2)", "flake8-quotes (>=3.3.0,<4)", "flake8-sfs (>=0.0.3,<0.1)", "flake8-variables-names (>=0.0.4,<0.1)", "invoke", "isort (>=4.3.4,<5)", "jupyter (>=1.0.0,<2)", "packaging (>=20,<21)", "pandas-vet (>=0.2.2,<0.3)", "pep8-naming (>=0.12.1,<0.13)", "pip (>=9.0.1)", "pydocstyle (>=6.1.1,<6.2)", "pytest (>=6.2.5,<7)", "pytest-cov (>=2.6.0,<3)", "pytest-rerunfailures (>=10)", "rundoc (>=0.4.3,<0.5)", "torch (>=1.11.0)", "torch (>=1.8.0)", "torch (>=2.0.0)", "tox (>=2.9.1,<4)", "twine (>=1.10.0,<4)", "watchdog (>=0.8.3,<0.11)", "wheel (>=0.30.0)"]
+pomegranate = ["pomegranate (>=0.14.1,<0.14.7)"]
+test = ["invoke", "jupyter (>=1.0.0,<2)", "pytest (>=6.2.5,<7)", "pytest-cov (>=2.6.0,<3)", "pytest-rerunfailures (>=10)", "rundoc (>=0.4.3,<0.5)", "torch (>=1.11.0)", "torch (>=1.8.0)", "torch (>=2.0.0)"]
+torch = ["torch (>=1.11.0)", "torch (>=1.8.0)", "torch (>=2.0.0)"]
+
+[[package]]
+name = "sdv"
+version = "1.11.0"
+description = "Generate synthetic data for single table, multi table and sequential data"
+optional = false
+python-versions = "<3.12,>=3.8"
+files = [
+    {file = "sdv-1.11.0-py3-none-any.whl", hash = "sha256:3b2b58e2730174d4d13061854951bd562346495eaa50225be91d50e00cf9bb97"},
+    {file = "sdv-1.11.0.tar.gz", hash = "sha256:dd9d8360f69d609762ac02ce32f8d5ccd7fd805994a030dfdbf6c7d8d0973ff6"},
+]
+
+[package.dependencies]
+boto3 = ">=1.15.0,<2"
+botocore = ">=1.18,<2"
+cloudpickle = ">=2.1.0,<3.0"
+copulas = ">=0.9.0,<0.10"
+ctgan = ">=0.9.0,<0.10"
+deepecho = ">=0.5,<0.6"
+graphviz = ">=0.13.2,<1"
+numpy = {version = ">=1.20.0,<2", markers = "python_version < \"3.10\""}
+pandas = {version = ">=1.1.3", markers = "python_version < \"3.10\""}
+rdt = ">=1.10.0,<2"
+sdmetrics = ">=0.13.0,<0.14"
+tqdm = ">=4.15,<5"
+
+[package.extras]
+dev = ["Jinja2 (>=2,<3)", "Sphinx (>=3,<3.3)", "autoflake (>=1.1,<2)", "autopep8 (>=1.4.3,<1.6)", "build (>=1.0.0,<2)", "bump-my-version (>=0.18.3,<1)", "coverage (>=4.5.1,<6)", "dlint (>=0.11.0,<0.12)", "docutils (>=0.12,<0.18)", "flake8 (>=3.7.7,<4)", "flake8-absolute-import (>=1.0,<2)", "flake8-builtins (>=1.5.3,<1.6)", "flake8-comprehensions (>=3.6.1,<3.7)", "flake8-debugger (>=4.0.0,<4.1)", "flake8-docstrings (>=1.5.0,<2)", "flake8-eradicate (>=1.1.0,<1.2)", "flake8-expression-complexity (>=0.0.9,<0.1)", "flake8-fixme (>=1.1.1,<1.2)", "flake8-mock (>=0.3,<0.4)", "flake8-multiline-containers (>=0.0.18,<0.1)", "flake8-mutable (>=1.2.0,<1.3)", "flake8-print (>=4.0.0,<4.1)", "flake8-pytest-style (>=1.5.0,<2)", "flake8-quotes (>=3.3.0,<4)", "flake8-sfs (>=0.0.3,<0.1)", "flake8-variables-names (>=0.0.4,<0.1)", "invoke", "isort (>=4.3.4,<5)", "m2r2 (>=0.2.5,<0.3)", "markupsafe (<2.1.0)", "nbsphinx (>=0.5.0,<0.7)", "pandas-vet (>=0.2.3,<0.3)", "pep8-naming (>=0.12.1,<0.13)", "pip (>=9.0.1)", "pydata-sphinx-theme (<0.5)", "pydocstyle (>=6.1.1,<6.2)", "sdv[test]", "sphinx-toolbox (>=2.5,<3)", "tox (>=2.9.1,<4)", "twine (>=1.10.0,<4)", "watchdog (>=0.8.3,<0.9)", "wheel (>=0.30.0)"]
+pomegranate = ["pomegranate (>=0.14.3,<0.15)"]
+test = ["jupyter (>=1.0.0,<2)", "pytest (>=3.4.2)", "pytest-cov (>=2.6.0)", "pytest-rerunfailures (>10)", "pytest-runner (>=2.11.1)", "rundoc (>=0.4.3,<0.5)", "tomli (>=2.0.0,<3)"]
+
+[[package]]
 name = "setuptools"
-version = "70.1.1"
+version = "70.2.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-70.1.1-py3-none-any.whl", hash = "sha256:a58a8fde0541dab0419750bcc521fbdf8585f6e5cb41909df3a472ef7b81ca95"},
-    {file = "setuptools-70.1.1.tar.gz", hash = "sha256:937a48c7cdb7a21eb53cd7f9b59e525503aa8abaf3584c730dc5f7a5bec3a650"},
+    {file = "setuptools-70.2.0-py3-none-any.whl", hash = "sha256:b8b8060bb426838fbe942479c90296ce976249451118ef566a5a0b7d8b78fb05"},
+    {file = "setuptools-70.2.0.tar.gz", hash = "sha256:bd63e505105011b25c3c11f753f7e3b8465ea739efddaccef8f0efac2137bac1"},
 ]
 
 [package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.10.0)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
+test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.10.0)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
 name = "shap"
@@ -5136,6 +5419,21 @@ xgbse = "*"
 all = ["bandit", "black", "black-nb", "click", "darglint", "dgl", "doc8", "docutils (<0.18)", "flake8", "igraph", "importlib-metadata", "isort", "jupyter", "nbconvert", "nbformat", "notebook", "pre-commit", "py", "pytest", "pytest-benchmark", "pytest-cov", "pytest-xdist[psutil]", "pytest-xprocess", "setuptools", "tabulate", "torch-geometric", "torch-scatter", "torch-sparse"]
 goggle = ["dgl", "torch-geometric", "torch-scatter", "torch-sparse"]
 testing = ["bandit", "black", "black-nb", "click", "darglint", "doc8", "docutils (<0.18)", "flake8", "igraph", "isort", "jupyter", "nbconvert", "nbformat", "notebook", "pre-commit", "py", "pytest", "pytest-benchmark", "pytest-cov", "pytest-xdist[psutil]", "pytest-xprocess", "setuptools", "tabulate"]
+
+[[package]]
+name = "tenacity"
+version = "8.4.2"
+description = "Retry code until it succeeds"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "tenacity-8.4.2-py3-none-any.whl", hash = "sha256:9e6f7cf7da729125c7437222f8a522279751cdfbe6b67bfe64f75d3a348661b2"},
+    {file = "tenacity-8.4.2.tar.gz", hash = "sha256:cd80a53a79336edba8489e767f729e4f391c896956b57140b5d7511a64bbd3ef"},
+]
+
+[package.extras]
+doc = ["reno", "sphinx"]
+test = ["pytest", "tornado (>=4.5)", "typeguard"]
 
 [[package]]
 name = "tensorboard"
@@ -5731,20 +6029,19 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "2.2.2"
+version = "1.26.19"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
-python-versions = ">=3.8"
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 files = [
-    {file = "urllib3-2.2.2-py3-none-any.whl", hash = "sha256:a448b2f64d686155468037e1ace9f2d2199776e17f0a46610480d311f73e3472"},
-    {file = "urllib3-2.2.2.tar.gz", hash = "sha256:dd505485549a7a552833da5e6063639d0d177c04f23bc3864e41e5dc5f612168"},
+    {file = "urllib3-1.26.19-py2.py3-none-any.whl", hash = "sha256:37a0344459b199fce0e80b0d3569837ec6b6937435c5244e7fd73fa6006830f3"},
+    {file = "urllib3-1.26.19.tar.gz", hash = "sha256:3e3d753a8618b86d7de333b4223005f68720bcd6a7d2bcb9fbd2229ec7c1e429"},
 ]
 
 [package.extras]
-brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
-h2 = ["h2 (>=4,<5)"]
-socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
-zstd = ["zstandard (>=0.18.0)"]
+brotli = ["brotli (==1.0.9)", "brotli (>=1.0.9)", "brotlicffi (>=0.8.0)", "brotlipy (>=0.6.0)"]
+secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress", "pyOpenSSL (>=0.14)", "urllib3-secure-extra"]
+socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "virtualenv"
@@ -6225,5 +6522,5 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.9.0,<3.13"
-content-hash = "20b949ec2784eb809b85016a0b96c3015b2e43f349583bda1fea592eedc04618"
+python-versions = ">=3.9.0,<3.10"
+content-hash = "8347735da90ad1712f1f092028b766651dce2ec6baa1362eede7f8fbe00c53fa"

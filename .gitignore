@@ -1,2 +1,5 @@
 *.err
 *.out
+*.pyc
+__pycache__/*
+
