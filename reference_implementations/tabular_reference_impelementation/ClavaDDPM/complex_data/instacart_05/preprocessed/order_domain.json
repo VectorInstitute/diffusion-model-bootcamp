@@ -1,0 +1,1 @@
+{"eval_set": {"size": 3, "type": "discrete"}, "order_number": {"size": 100, "type": "continuous"}, "order_dow": {"size": 7, "type": "continuous"}, "order_hour_of_day": {"size": 24, "type": "continuous"}, "days_since_prior_order": {"size": 32, "type": "continuous"}}
