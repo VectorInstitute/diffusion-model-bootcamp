@@ -276,6 +276,8 @@ class TabSyn:
         end_time = time.time()
         print("Time: ", end_time - start_time)
 
+        self.dif_model.load_state_dict(torch.load(os.path.join(ckpt_path, "model.pt")))
+
     def load_model_state(self, ckpt_dir, dif_ckpt_name = "model.pt"):
         dif_model_save_path = os.path.join(ckpt_dir, dif_ckpt_name)
         vae_model_save_path = os.path.join(ckpt_dir, "vae", "model.pt")
