@@ -586,7 +586,10 @@ def read_pure_data(path, split="train"):
 def concat_y_to_X(X, y):
     if X is None:
         return y.reshape(-1, 1)
-    return np.concatenate([y.reshape(-1, 1), X], axis=1)
+    if y.size > 0:
+        return np.concatenate([y.reshape(-1, 1), X], axis=1)
+    else:
+        return X
 
 
 def make_dataset(
