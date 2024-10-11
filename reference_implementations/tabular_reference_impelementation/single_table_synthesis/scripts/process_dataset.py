@@ -244,12 +244,13 @@ def process_data(name, info_path, data_dir):
     if X_num_train.size> 0: 
         np.save(f"{processed_data_dir}/{name}/X_num_train.npy", X_num_train)
     if X_cat_train.size> 0: 
-        np.save(f"{processed_data_dir}/{name}/X_cat_train.npy", X_cat_train)
-    if y_train.size> 0:     
-        np.save(f"{processed_data_dir}/{name}/y_train.npy", y_train)
+        np.save(f"{processed_data_dir}/{name}/X_cat_train.npy", X_cat_train)    
+    np.save(f"{processed_data_dir}/{name}/y_train.npy", y_train)
 
-    np.save(f"{processed_data_dir}/{name}/X_num_test.npy", X_num_test)
-    np.save(f"{processed_data_dir}/{name}/X_cat_test.npy", X_cat_test)
+    if X_num_test.size> 0: 
+        np.save(f"{processed_data_dir}/{name}/X_num_test.npy", X_num_test)
+    if X_cat_test.size> 0: 
+        np.save(f"{processed_data_dir}/{name}/X_cat_test.npy", X_cat_test)
     np.save(f"{processed_data_dir}/{name}/y_test.npy", y_test)
 
     train_df[num_columns] = train_df[num_columns].astype(np.float32)
