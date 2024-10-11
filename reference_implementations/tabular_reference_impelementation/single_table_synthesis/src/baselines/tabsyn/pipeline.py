@@ -100,12 +100,20 @@ class TabSyn:
 
             curr_count = 0
 
-            for batch_num, batch_cat in pbar:
+            for batch in pbar:
+                if len(batch) == 2:
+                    batch_num, batch_cat = batch
+                    batch_cat = batch_cat.to(self.device)
+                else:
+                    batch_num = batch
+                    batch_cat = None
+                    
                 self.vae_model.train()
                 self.vae_optimizer.zero_grad()
 
                 batch_num = batch_num.to(self.device)
-                batch_cat = batch_cat.to(self.device)
+                if batch_cat is not None:
+                    batch_cat = batch_cat.to(self.device)
 
                 Recon_X_num, Recon_X_cat, mu_z, std_z = self.vae_model(batch_num, batch_cat)
             
@@ -133,7 +141,7 @@ class TabSyn:
                 Recon_X_num, Recon_X_cat, mu_z, std_z = self.vae_model(self.X_test_num, self.X_test_cat)
 
                 val_mse_loss, val_ce_loss, val_kl_loss, val_acc = self.compute_loss(self.X_test_num, self.X_test_cat, Recon_X_num, Recon_X_cat, mu_z, std_z)
-                val_loss = val_mse_loss.item() * 0 + val_ce_loss.item()    
+                val_loss = val_mse_loss.item() * 0 + val_ce_loss.item()  
 
                 self.vae_scheduler.step(val_loss)
                 new_lr = self.vae_optimizer.param_groups[0]["lr"]
@@ -171,9 +179,10 @@ class TabSyn:
     def compute_loss(self, X_num, X_cat, Recon_X_num, Recon_X_cat, mu_z, logvar_z):
         ce_loss_fn = nn.CrossEntropyLoss()
         mse_loss = (X_num - Recon_X_num).pow(2).mean()
-        ce_loss = 0
-        acc = 0
-        total_num = 0
+        ce_loss = torch.zeros(1).to(X_num.device)
+        acc = torch.zeros(1).to(X_num.device)
+        total_num = torch.zeros(1).to(X_num.device)
+        idx = 0
 
         for idx, x_cat in enumerate(Recon_X_cat):
             if x_cat is not None:
@@ -183,7 +192,8 @@ class TabSyn:
             total_num += x_hat.shape[0]
         
         ce_loss /= (idx + 1)
-        acc /= total_num
+        if total_num > 0:
+            acc /= total_num
         # loss = mse_loss + ce_loss
 
         temp = 1 + logvar_z - mu_z.pow(2) - logvar_z.exp()
@@ -195,7 +205,8 @@ class TabSyn:
         # Saving latent embeddings
         with torch.no_grad():
             X_train_num = X_train_num.to(self.device)
-            X_train_cat = X_train_cat.to(self.device)
+            if X_train_cat is not None:
+                X_train_cat = X_train_cat.to(self.device)
 
             train_z = self.pre_encoder(X_train_num, X_train_cat).detach().cpu().numpy()
 

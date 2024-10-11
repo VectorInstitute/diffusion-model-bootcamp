@@ -314,10 +314,11 @@ class Reconstructor(nn.Module):
         nn.init.xavier_uniform_(self.weight, gain=1 / math.sqrt(2))
         self.cat_recons = nn.ModuleList()
 
-        for d in categories:
-            recon = nn.Linear(d_token, d)
-            nn.init.xavier_uniform_(recon.weight, gain=1 / math.sqrt(2))
-            self.cat_recons.append(recon)
+        if categories is not None:
+            for d in categories:
+                recon = nn.Linear(d_token, d)
+                nn.init.xavier_uniform_(recon.weight, gain=1 / math.sqrt(2))
+                self.cat_recons.append(recon)
 
     def forward(self, h):
         h_num = h[:, : self.d_numerical]

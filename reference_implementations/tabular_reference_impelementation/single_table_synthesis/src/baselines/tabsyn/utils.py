@@ -106,10 +106,12 @@ def split_num_cat_target(syn_data, info, num_inverse, cat_inverse, device):
         syn_cat.append(pred.argmax(dim=-1))
 
     syn_num = x_hat_num.cpu().numpy()
-    syn_cat = torch.stack(syn_cat).t().cpu().numpy()
-
     syn_num = num_inverse(syn_num)
-    syn_cat = cat_inverse(syn_cat)
+    
+    if len(syn_cat) > 0:
+        syn_cat = torch.stack(syn_cat).t().cpu().numpy()
+        syn_cat = cat_inverse(syn_cat)
+
 
     if info["task_type"] == "regression":
         syn_target = syn_num[:, : len(target_col_idx)]
