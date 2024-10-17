@@ -167,8 +167,6 @@ class TabSyn:
         end_time = time.time()
         print("Training time: {:.4f} mins".format((end_time - start_time)/60))
 
-        self.vae_model.load_state_dict(torch.load(model_save_path))
-
         # load and save encoder and decoder states
         self.pre_encoder.load_weights(self.vae_model)
         self.pre_decoder.load_weights(self.vae_model)
