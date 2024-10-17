@@ -139,11 +139,13 @@ class TabularDataset(Dataset):
 
     def __getitem__(self, index):
         this_num = self.X_num[index]
-        this_cat = self.X_cat[index]
+        if self.X_cat is not None:
+            this_cat = self.X_cat[index]
+            
+            return this_num,this_cat
+        else:
+            return this_num
 
-        sample = (this_num, this_cat)
-
-        return sample
 
     def __len__(self):
         return self.X_num.shape[0]
@@ -167,7 +169,11 @@ def preprocess(
         X_cat = dataset.X_cat
 
         X_train_num, X_test_num = X_num["train"], X_num["test"]
-        X_train_cat, X_test_cat = X_cat["train"], X_cat["test"]
+        if X_cat is None:
+            X_train_cat, X_test_cat = None, None
+        else:
+            X_train_cat, X_test_cat = X_cat["train"], X_cat["test"]
+       
 
         categories = get_categories(X_train_cat)
         d_numerical = X_train_num.shape[1]
@@ -177,7 +183,10 @@ def preprocess(
 
         if inverse:
             num_inverse = dataset.num_transform.inverse_transform
-            cat_inverse = dataset.cat_transform.inverse_transform
+            if dataset.cat_transform is not None:
+                cat_inverse = dataset.cat_transform.inverse_transform
+            else:
+                cat_inverse = None
 
             return X_num, X_cat, categories, d_numerical, num_inverse, cat_inverse
         else:
@@ -577,7 +586,10 @@ def read_pure_data(path, split="train"):
 def concat_y_to_X(X, y):
     if X is None:
         return y.reshape(-1, 1)
-    return np.concatenate([y.reshape(-1, 1), X], axis=1)
+    if y.size > 0:
+        return np.concatenate([y.reshape(-1, 1), X], axis=1)
+    else:
+        return X
 
 
 def make_dataset(
@@ -626,7 +638,7 @@ def make_dataset(
                     X_num_t = concat_y_to_X(X_num_t, y_t)
                 X_num[split] = X_num_t
             if X_cat is not None:
-                X_cat[split] = X_cat_t
+                X_cat[split] = X_cat_t                
             if y is not None:
                 y[split] = y_t
 
