@@ -12,3 +12,5 @@ models/
 
 # imputed data files
 impute/
+
+*.DS_Store
