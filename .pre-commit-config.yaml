@@ -1,22 +1,46 @@
-# .pre-commit-config.yaml
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v5.0.0  # Use the ref you want to point at
     hooks:
-      - id: check-yaml
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
+    - id: trailing-whitespace
+    - id: check-ast
+    - id: check-builtin-literals
+    - id: check-docstring-first
+    - id: check-executables-have-shebangs
+    - id: debug-statements
+    - id: end-of-file-fixer
+    - id: mixed-line-ending
+      args: [--fix=lf]
+    - id: check-byte-order-marker
+    - id: check-merge-conflict
+    - id: check-symlinks
+    - id: detect-private-key
+    - id: check-yaml
+      args: [--unsafe]
+    - id: check-toml
 
-  - repo: https://github.com/psf/black
-    rev: 22.10.0
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.6.14
     hooks:
-      - id: black
+      - id: uv-lock
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.3
+    rev: 'v0.11.6'
     hooks:
-      - id: ruff
-        types_or: [python, pyi, jupyter]
-        args: [--fix]
-      - id: ruff-format
-        types_or: [python, pyi, jupyter]
+    - id: ruff
+      args: [--fix, --exit-non-zero-on-fix]
+      types_or: [python, jupyter]
+    - id: ruff-format
+      types_or: [python, jupyter]
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1  # v1.19.0
+    hooks:
+      - id: typos
+        args: []
+
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+    - id: nbqa-ruff
+      args: [--fix, --exit-non-zero-on-fix]

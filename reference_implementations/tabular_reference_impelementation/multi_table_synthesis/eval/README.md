@@ -1,1 +1,0 @@
-Code in this directory is based on TabSyn `https://github.com/amazon-science/tabsyn.git`.
