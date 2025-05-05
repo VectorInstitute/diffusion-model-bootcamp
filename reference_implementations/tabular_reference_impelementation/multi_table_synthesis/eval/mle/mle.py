@@ -291,7 +291,7 @@ class FeatureMaker:
                 elif self.label_type == "float":
                     labels = col.astype(float)
                 else:
-                    assert 0, "unkown label type"
+                    assert 0, "unknown label type"
                 continue
 
             if cinfo["type"] == CONTINUOUS:
