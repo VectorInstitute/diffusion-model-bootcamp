@@ -4,10 +4,10 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from gluonts.torch.util import lagged_sequence_values
-
+from uncond_ts_diff.model import TSDiff
 from uncond_ts_diff.predictor import PyTorchPredictorWGrads
 from uncond_ts_diff.utils import extract
-from uncond_ts_diff.model import TSDiff
+
 
 PREDICTION_INPUT_NAMES = [
     "past_target",
@@ -51,9 +51,9 @@ class Guidance(torch.nn.Module):
         batch_size = batch_size_x_num_samples // self.num_samples
         # num_samples uniformly distributed quantiles between 0 and 1
         # repeat for each element in the batch
-        q = (torch.arange(self.num_samples).repeat(batch_size) + 1).to(
-            device
-        ) / (self.num_samples + 1)
+        q = (torch.arange(self.num_samples).repeat(batch_size) + 1).to(device) / (
+            self.num_samples + 1
+        )
         # (batch_size x num_samples,)
 
         q = q[:, None, None]  # (batch_size x num_samples, 1, 1)
@@ -68,20 +68,17 @@ class Guidance(torch.nn.Module):
                 observation,
                 reduction="none",
             )[observation_mask == 1].sum()
-        elif self.guidance == "quantile":
+        if self.guidance == "quantile":
             return self.quantile_loss(
                 self.model.fast_denoise(y, t, features),
                 observation,
             )[observation_mask == 1].sum()
-        else:
-            raise ValueError(f"Unknown guidance {self.guidance}!")
+        raise ValueError(f"Unknown guidance {self.guidance}!")
 
     def score_func(self, y, t, observation, observation_mask, features):
         with torch.enable_grad():
             y.requires_grad_(True)
-            Ey = self.energy_func(
-                y, t, observation, observation_mask, features
-            )
+            Ey = self.energy_func(y, t, observation, observation_mask, features)
             return -torch.autograd.grad(Ey, y)[0]
 
     def scale_func(self, y, t, base_scale):
@@ -126,9 +123,7 @@ class Guidance(torch.nn.Module):
             stats=stats.to(device) if stats is not None else None,
         )
 
-        observation, scale_params, features = self.model._extract_features(
-            data
-        )
+        observation, scale_params, features = self.model._extract_features(data)
 
         observation = observation.to(device)
 
@@ -151,9 +146,7 @@ class Guidance(torch.nn.Module):
             observation_mask = observation_mask[:, :, None]
 
         observation = observation.repeat_interleave(self.num_samples, dim=0)
-        observation_mask = observation_mask.repeat_interleave(
-            self.num_samples, dim=0
-        )
+        observation_mask = observation_mask.repeat_interleave(self.num_samples, dim=0)
         if features is not None:
             features = features.repeat_interleave(self.num_samples, dim=0)
 
@@ -204,9 +197,7 @@ class DDPMGuidance(Guidance):
         return extract(self.model.posterior_variance, t, y.shape) * base_scale
 
     @torch.no_grad()
-    def _reverse_diffusion(
-        self, observation, observation_mask, features, base_scale
-    ):
+    def _reverse_diffusion(self, observation, observation_mask, features, base_scale):
         device = observation.device
         batch_size = observation.shape[0]
 
@@ -263,8 +254,7 @@ class DDIMGuidance(Guidance):
 
     def scale_func(self, y, t, base_scale):
         return (
-            extract(self.model.sqrt_one_minus_alphas_cumprod, t, y.shape)
-            * base_scale
+            extract(self.model.sqrt_one_minus_alphas_cumprod, t, y.shape) * base_scale
         )
 
     def _get_timesteps(self):
@@ -274,18 +264,14 @@ class DDIMGuidance(Guidance):
             n_test_timesteps = int(self.model.timesteps / self.skip_factor)
             c = 1 - self.skip_factor / self.model.timesteps
             timesteps = np.square(
-                np.linspace(
-                    0, np.sqrt(self.model.timesteps * c), n_test_timesteps
-                )
+                np.linspace(0, np.sqrt(self.model.timesteps * c), n_test_timesteps)
             )
             timesteps = timesteps.astype(np.int64).tolist()
         timesteps = sorted(set(timesteps))
         return timesteps
 
     @torch.no_grad()
-    def _reverse_ddim(
-        self, observation, observation_mask, features, base_scale
-    ):
+    def _reverse_ddim(self, observation, observation_mask, features, base_scale):
         device = observation.device
         batch_size = observation.shape[0]
         timesteps = self._get_timesteps()
@@ -295,9 +281,7 @@ class DDIMGuidance(Guidance):
 
         for i, j in zip(reversed(timesteps), reversed(timesteps_prev)):
             t = torch.full((batch_size,), i, device=device, dtype=torch.long)
-            t_prev = torch.full(
-                (batch_size,), j, device=device, dtype=torch.long
-            )
+            t_prev = torch.full((batch_size,), j, device=device, dtype=torch.long)
             noise = self.model.backbone(seq, t, features)
             scale = self.scale_func(seq, t, base_scale=base_scale)
             noise = noise - scale * self.score_func(
@@ -320,6 +304,4 @@ class DDIMGuidance(Guidance):
         return seq
 
     def guide(self, observation, observation_mask, features, base_scale):
-        return self._reverse_ddim(
-            observation, observation_mask, features, base_scale
-        )
+        return self._reverse_ddim(observation, observation_mask, features, base_scale)

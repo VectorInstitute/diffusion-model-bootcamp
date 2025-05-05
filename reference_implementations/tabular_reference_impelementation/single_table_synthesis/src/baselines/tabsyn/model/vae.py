@@ -1,10 +1,9 @@
-import torch
-import torch.nn as nn
-import torch.nn.init as nn_init
-import torch.nn.functional as F
-from torch import Tensor
-
 import math
+
+import torch
+import torch.nn.functional as F
+import torch.nn.init as nn_init
+from torch import Tensor, nn
 
 
 class Tokenizer(nn.Module):

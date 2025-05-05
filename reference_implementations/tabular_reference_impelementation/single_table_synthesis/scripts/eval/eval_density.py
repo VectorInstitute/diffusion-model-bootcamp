@@ -1,12 +1,10 @@
-import pandas as pd
-
+import argparse
 import json
+
+import pandas as pd
 
 # Metrics
 from sdmetrics.reports.single_table import QualityReport
-
-
-import argparse
 
 
 def reorder(real_data, syn_data, info):

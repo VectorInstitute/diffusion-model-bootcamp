@@ -1,12 +1,11 @@
-import torch
-
-from src.baselines.tabddpm.main_train import main as train_tabddpm  # noqa: F401
-from src.baselines.tabddpm.main_sample import main as sample_tabddpm  # noqa: F401
-from src.baselines.tabsyn.main_train import main as train_tabsyn  # noqa: F401
-from src.baselines.tabsyn.main_sample import main as sample_tabsyn  # noqa: F401
-from src.baselines.tabsyn.main_vae import main as train_vae  # noqa: F401
-
 import argparse
+
+import torch
+from src.baselines.tabddpm.main_sample import main as sample_tabddpm  # noqa: F401
+from src.baselines.tabddpm.main_train import main as train_tabddpm  # noqa: F401
+from src.baselines.tabsyn.main_sample import main as sample_tabsyn  # noqa: F401
+from src.baselines.tabsyn.main_train import main as train_tabsyn  # noqa: F401
+from src.baselines.tabsyn.main_vae import main as train_vae  # noqa: F401
 
 
 def execute_function(method, mode):

@@ -1,13 +1,12 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-from typing import Tuple
 from functools import partial
+from typing import Tuple
 
 import numpy as np
-from gluonts.evaluation import Evaluator
 from gluonts.dataset.split import slice_data_entry
+from gluonts.evaluation import Evaluator
 from gluonts.transform import AdhocTransform, Chain
-
 from uncond_ts_diff.model import LinearEstimator
 from uncond_ts_diff.utils import (
     GluonTSNumpyDataset,

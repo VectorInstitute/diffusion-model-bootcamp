@@ -16,13 +16,15 @@
 # pylint: skip-file
 """Return training and evaluation/test datasets from config files."""
 
-import torch
-import numpy as np
-import pandas as pd
-from tabular_transformer import GeneralTransformer
 import json
 import logging
 import os
+
+import numpy as np
+import pandas as pd
+import torch
+from tabular_transformer import GeneralTransformer
+
 
 CATEGORICAL = "categorical"
 CONTINUOUS = "continuous"

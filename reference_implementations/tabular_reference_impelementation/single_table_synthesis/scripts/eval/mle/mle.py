@@ -1,26 +1,25 @@
 import numpy as np
 import pandas as pd
-from xgboost import XGBClassifier, XGBRegressor
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from prdc import compute_prdc
+from sklearn.exceptions import ConvergenceWarning
 from sklearn.metrics import (
-    classification_report,
     accuracy_score,
+    classification_report,
+    explained_variance_score,
     f1_score,
+    mean_absolute_error,
+    mean_squared_error,
     precision_score,
+    r2_score,
     recall_score,
     roc_auc_score,
 )
-from sklearn.metrics import (
-    explained_variance_score,
-    mean_squared_error,
-    mean_absolute_error,
-    r2_score,
-)
 from sklearn.model_selection import ParameterGrid
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.utils._testing import ignore_warnings
-from sklearn.exceptions import ConvergenceWarning
-from prdc import compute_prdc
 from tqdm import tqdm
+from xgboost import XGBClassifier, XGBRegressor
+
 
 CATEGORICAL = "categorical"
 CONTINUOUS = "continuous"
@@ -282,19 +281,18 @@ class FeatureMaker:
                 else:
                     feature = (col - cmin) / (cmax - cmin) * 5
 
-            else:
-                if cinfo["size"] <= 2:
-                    feature = col
+            elif cinfo["size"] <= 2:
+                feature = col
 
+            else:
+                encoder = self.encoders.get(index)
+                col = col.reshape(-1, 1)
+                if encoder:
+                    feature = encoder.transform(col)
                 else:
-                    encoder = self.encoders.get(index)
-                    col = col.reshape(-1, 1)
-                    if encoder:
-                        feature = encoder.transform(col)
-                    else:
-                        encoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
-                        self.encoders[index] = encoder
-                        feature = encoder.fit_transform(col)
+                    encoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
+                    self.encoders[index] = encoder
+                    feature = encoder.fit_transform(col)
 
             features.append(feature)
 
@@ -830,5 +828,4 @@ def compute_scores(train, test, synthesized_data, metadata, eval):
     )
     if eval is None:
         return a.mean(axis=0), a.std(axis=0), a[["name", "param"]]
-    else:
-        return a.mean(axis=0), a.std(axis=0)
+    return a.mean(axis=0), a.std(axis=0)

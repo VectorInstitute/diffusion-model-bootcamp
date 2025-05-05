@@ -10,7 +10,7 @@ Diffusion models are a class of generative models that have shown promising resu
 
 - **docs/**: Contains detailed documentation, additional resources, installation guides, and setup instructions that are not covered in this README.
 - **reference_implementations/**: Reference Implementations are organized by topics. Each topic has its own directory containing codes, notebooks, and a README for guidance.
-- **pyproject.toml**: The `pyproject.toml` file in this repository configures various build system requirements and dependencies, centralizing project settings in a standardized format.
+- **pyproject.toml**: The `pyproject.toml` file in this repository configures various build system requirements and dependencies using uv, centralizing project settings in a standardized format.
 
 
 ### Reference Implementations Directory
@@ -32,12 +32,19 @@ To get started with this bootcamp:
 1. Clone this repository to your machine.
 2. Activate your python environment. If you are using Vector's cluster, you can activate it by refering to the `docs/technical_onboarding`, otherwise you can create a new environment using the following command:
 ```bash
-pip install --upgrade pip poetry
-poetry env use [name of your python] #python3.9
-source $(poetry env info --path)/bin/activate
-poetry install --with "synthcity, tabsyn, clavaddpm, csdi, tsdiff"
-# If your system is not compatible with pykeops, you can uninstall it using the following command
-pip uninstall pykeops 
+# Install uv if you don't have it already
+curl -sL https://github.com/astral-sh/uv/releases/download/0.1.25/uv-installer.sh | bash
+
+# Create a virtual environment (Python 3.9 required)
+uv venv
+source .venv/bin/activate
+
+# Install dependencies with default groups
+uv pip install -e .
+
+# If your system is not compatible with pykeops, you can uninstall it
+uv pip uninstall pykeops
+
 # Install the kernel for jupyter (only need to do it once)
 ipython kernel install --user --name=diffusion_models
 ```

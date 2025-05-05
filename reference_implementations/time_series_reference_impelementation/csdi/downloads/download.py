@@ -1,11 +1,13 @@
+import os
+import pickle
+import sys
 import tarfile
 import zipfile
-import sys
-import os
-import wget
-import requests
+
 import pandas as pd
-import pickle
+import requests
+import wget
+
 
 os.makedirs("data/", exist_ok=True)
 if sys.argv[1] == "physio":

@@ -1,30 +1,31 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-from typing import Optional, List
 import math
+from typing import List, Optional
 
 import numpy as np
-from sklearn.linear_model import LinearRegression, Ridge
-from gluonts.model import Estimator, Predictor
 from gluonts.dataset.common import Dataset
 from gluonts.dataset.field_names import FieldName
-from gluonts.transform import (
-    Transformation,
-    AddObservedValuesIndicator,
-    InstanceSplitter,
-    TestSplitSampler,
-    ExpectedNumInstanceSampler,
-    SelectFields,
-)
-from gluonts.dataset.loader import TrainDataLoader, InferenceDataLoader
+from gluonts.dataset.loader import InferenceDataLoader, TrainDataLoader
 from gluonts.itertools import Cached
+from gluonts.model import Estimator, Predictor
 from gluonts.model.forecast_generator import (
     ForecastGenerator,
     SampleForecastGenerator,
     predict_to_numpy,
 )
+from gluonts.transform import (
+    AddObservedValuesIndicator,
+    ExpectedNumInstanceSampler,
+    InstanceSplitter,
+    SelectFields,
+    TestSplitSampler,
+    Transformation,
+)
+from sklearn.linear_model import LinearRegression, Ridge
 
 from ._scaler import MeanScaler, NOPScaler
+
 
 PREDICTION_INPUT_NAMES = [
     "past_target",
@@ -46,9 +47,7 @@ def stack(data):
 
 
 def batchify(data: List[dict]):
-    return {
-        key: stack(data=[item[key] for item in data]) for key in data[0].keys()
-    }
+    return {key: stack(data=[item[key] for item in data]) for key in data[0].keys()}
 
 
 class LinearModel:
@@ -211,9 +210,9 @@ class LinearEstimator(Estimator):
         )
 
     def _create_training_samples(self, training_data) -> np.ndarray:
-        transformation = self._create_instance_splitter(
-            "training"
-        ) + SelectFields(TRAINING_INPUT_NAMES)
+        transformation = self._create_instance_splitter("training") + SelectFields(
+            TRAINING_INPUT_NAMES
+        )
         num_batches_per_epoch = math.ceil(self.num_train_samples / 100)
         data_loader = TrainDataLoader(
             training_data,
@@ -271,6 +270,4 @@ class LinearEstimator(Estimator):
             SKLearnLinear = Ridge
         regressor = SKLearnLinear().fit(scaled_train_X, scaled_train_y)
         model = LinearModel(regressor.coef_, regressor.intercept_, self.scaler)
-        return self.create_predictor(
-            transformation=transformation, model=model
-        )
+        return self.create_predictor(transformation=transformation, model=model)

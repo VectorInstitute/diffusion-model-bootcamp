@@ -1,6 +1,5 @@
 import enum
-from typing import Any, Optional, Tuple, Dict, Union, cast
-from functools import partial
+from typing import Any, Dict, Optional, Tuple, Union, cast
 
 import numpy as np
 import scipy.special
@@ -11,15 +10,16 @@ from .util import TaskType
 
 
 class PredictionType(enum.Enum):
-    LOGITS = 'logits'
-    PROBS = 'probs'
+    LOGITS = "logits"
+    PROBS = "probs"
+
 
 class MetricsReport:
     def __init__(self, report: dict, task_type: TaskType):
-        self._res = {k: {} for k in report.keys()}
+        self._res = {k: {} for k in report}
         if task_type in (TaskType.BINCLASS, TaskType.MULTICLASS):
             self._metrics_names = ["acc", "f1"]
-            for k in report.keys():
+            for k in report:
                 self._res[k]["acc"] = report[k]["accuracy"]
                 self._res[k]["f1"] = report[k]["macro avg"]["f1-score"]
                 if task_type == TaskType.BINCLASS:
@@ -28,7 +28,7 @@ class MetricsReport:
 
         elif task_type == TaskType.REGRESSION:
             self._metrics_names = ["r2", "rmse"]
-            for k in report.keys():
+            for k in report:
                 self._res[k]["r2"] = report[k]["r2"]
                 self._res[k]["rmse"] = report[k]["rmse"]
         else:
@@ -44,18 +44,26 @@ class MetricsReport:
         return self._res[split][metric]
 
     def get_val_score(self) -> float:
-        return self._res["val"]["r2"] if "r2" in self._res["val"] else self._res["val"]["f1"]
-    
+        return (
+            self._res["val"]["r2"]
+            if "r2" in self._res["val"]
+            else self._res["val"]["f1"]
+        )
+
     def get_test_score(self) -> float:
-        return self._res["test"]["r2"] if "r2" in self._res["test"] else self._res["test"]["f1"]
-    
+        return (
+            self._res["test"]["r2"]
+            if "r2" in self._res["test"]
+            else self._res["test"]["f1"]
+        )
+
     def print_metrics(self) -> None:
         res = {
             "val": {k: np.around(self._res["val"][k], 4) for k in self._res["val"]},
-            "test": {k: np.around(self._res["test"][k], 4) for k in self._res["test"]}
+            "test": {k: np.around(self._res["test"][k], 4) for k in self._res["test"]},
         }
-    
-        print("*"*100)
+
+        print("*" * 100)
         print("[val]")
         print(res["val"])
         print("[test]")
@@ -63,18 +71,21 @@ class MetricsReport:
 
         return res
 
+
 class SeedsMetricsReport:
     def __init__(self):
         self._reports = []
 
     def add_report(self, report: MetricsReport) -> None:
         self._reports.append(report)
-    
+
     def get_mean_std(self) -> dict:
         res = {k: {} for k in ["train", "val", "test"]}
         for split in self._reports[0].get_splits_names():
             for metric in self._reports[0].get_metrics_names():
-                res[split][metric] = [x.get_metric(split, metric) for x in self._reports]
+                res[split][metric] = [
+                    x.get_metric(split, metric) for x in self._reports
+                ]
 
         agg_res = {k: {} for k in ["train", "val", "test"]}
         for split in self._reports[0].get_splits_names():
@@ -87,15 +98,22 @@ class SeedsMetricsReport:
         return agg_res
 
     def print_result(self) -> dict:
-        res = {split: {k: float(np.around(self._agg_res[split][k], 4)) for k in self._agg_res[split]} for split in ["val", "test"]}
-        print("="*100)
+        res = {
+            split: {
+                k: float(np.around(self._agg_res[split][k], 4))
+                for k in self._agg_res[split]
+            }
+            for split in ["val", "test"]
+        }
+        print("=" * 100)
         print("EVAL RESULTS:")
         print("[val]")
         print(res["val"])
         print("[test]")
         print(res["test"])
-        print("="*100)
+        print("=" * 100)
         return res
+
 
 def calculate_rmse(
     y_true: np.ndarray, y_pred: np.ndarray, std: Optional[float]
@@ -123,11 +141,11 @@ def _get_labels_and_probs(
     elif prediction_type == PredictionType.PROBS:
         probs = y_pred
     else:
-        util.raise_unknown('prediction_type', prediction_type)
+        util.raise_unknown("prediction_type", prediction_type)
 
     assert probs is not None
     labels = np.round(probs) if task_type == TaskType.BINCLASS else probs.argmax(axis=1)
-    return labels.astype('int64'), probs
+    return labels.astype("int64"), probs
 
 
 def calculate_metrics(
@@ -144,15 +162,15 @@ def calculate_metrics(
 
     if task_type == TaskType.REGRESSION:
         assert prediction_type is None
-        assert 'std' in y_info
-        rmse = calculate_rmse(y_true, y_pred, y_info['std'])
+        assert "std" in y_info
+        rmse = calculate_rmse(y_true, y_pred, y_info["std"])
         r2 = skm.r2_score(y_true, y_pred)
-        result = {'rmse': rmse, 'r2': r2}
+        result = {"rmse": rmse, "r2": r2}
     else:
         labels, probs = _get_labels_and_probs(y_pred, task_type, prediction_type)
         result = cast(
             Dict[str, Any], skm.classification_report(y_true, labels, output_dict=True)
         )
         if task_type == TaskType.BINCLASS:
-            result['roc_auc'] = skm.roc_auc_score(y_true, probs)
+            result["roc_auc"] = skm.roc_auc_score(y_true, probs)
     return result

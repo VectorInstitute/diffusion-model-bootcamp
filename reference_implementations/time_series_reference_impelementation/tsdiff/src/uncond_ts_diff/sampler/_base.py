@@ -1,7 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-from typing import Callable, Tuple
 from functools import partial
+from typing import Callable, Tuple
 
 import numpy as np
 import torch
@@ -55,11 +55,7 @@ def langevin_dynamics(
                 v = -torch.autograd.grad(Ez, z)[0]
         else:
             v = score_func(z)
-        z = (
-            z.detach()
-            + step_size * v
-            + sqrt_2eta * noise_scale * torch.randn_like(z)
-        )
+        z = z.detach() + step_size * v + sqrt_2eta * noise_scale * torch.randn_like(z)
     return z
 
 
@@ -147,9 +143,7 @@ def hmc(
     return xt
 
 
-def linear_midpoint_em_step(
-    zt: torch.Tensor, coeff: float, h: float, sigma: float
-):
+def linear_midpoint_em_step(zt: torch.Tensor, coeff: float, h: float, sigma: float):
     """Midpoint Euler-Maruyama step."""
     eta = torch.randn_like(zt)
     ztp1 = zt - h * coeff * zt / 2 + np.sqrt(h) * sigma * eta

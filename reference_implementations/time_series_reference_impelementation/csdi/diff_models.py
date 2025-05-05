@@ -1,8 +1,9 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import math
+
+import torch
+import torch.nn.functional as F
 from linear_attention_transformer import LinearAttentionTransformer
+from torch import nn
 
 
 def get_torch_trans(heads=8, layers=1, channels=64):

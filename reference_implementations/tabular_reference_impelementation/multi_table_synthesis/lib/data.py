@@ -1,38 +1,38 @@
 import hashlib
+import os
 from collections import Counter
 from copy import deepcopy
 from dataclasses import astuple, dataclass, replace
-from importlib.resources import path
 from pathlib import Path
-from typing import Any, Literal, Optional, Union, cast, Tuple, Dict, List
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
 import sklearn.preprocessing
 import torch
-import os
 from category_encoders import LeaveOneOutEncoder
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import cdist
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from . import util
 from .metrics import calculate_metrics as calculate_metrics_
 from .util import TaskType, load_json
 
+
 ArrayDict = Dict[str, np.ndarray]
 TensorDict = Dict[str, torch.Tensor]
 
 
-CAT_MISSING_VALUE = '__nan__'
-CAT_RARE_VALUE = '__rare__'
-Normalization = Literal['standard', 'quantile', 'minmax']
-NumNanPolicy = Literal['drop-rows', 'mean']
-CatNanPolicy = Literal['most_frequent']
-CatEncoding = Literal['one-hot', 'counter']
-YPolicy = Literal['default']
+CAT_MISSING_VALUE = "__nan__"
+CAT_RARE_VALUE = "__rare__"
+Normalization = Literal["standard", "quantile", "minmax"]
+NumNanPolicy = Literal["drop-rows", "mean"]
+CatNanPolicy = Literal["most_frequent"]
+CatEncoding = Literal["one-hot", "counter"]
+YPolicy = Literal["default"]
 
 
 class StandardScaler1d(StandardScaler):
@@ -64,27 +64,31 @@ class Dataset:
     n_classes: Optional[int]
 
     @classmethod
-    def from_dir(cls, dir_: Union[Path, str]) -> 'Dataset':
+    def from_dir(cls, dir_: Union[Path, str]) -> "Dataset":
         dir_ = Path(dir_)
-        splits = [k for k in ['train', 'val', 'test'] if dir_.joinpath(f'y_{k}.npy').exists()]
+        splits = [
+            k for k in ["train", "val", "test"] if dir_.joinpath(f"y_{k}.npy").exists()
+        ]
 
         def load(item) -> ArrayDict:
             return {
-                x: cast(np.ndarray, np.load(dir_ / f'{item}_{x}.npy', allow_pickle=True))  # type: ignore[code]
+                x: cast(
+                    np.ndarray, np.load(dir_ / f"{item}_{x}.npy", allow_pickle=True)
+                )  # type: ignore[code]
                 for x in splits
             }
 
-        if Path(dir_ / 'info.json').exists():
-            info = util.load_json(dir_ / 'info.json')
+        if Path(dir_ / "info.json").exists():
+            info = util.load_json(dir_ / "info.json")
         else:
             info = None
         return Dataset(
-            load('X_num') if dir_.joinpath('X_num_train.npy').exists() else None,
-            load('X_cat') if dir_.joinpath('X_cat_train.npy').exists() else None,
-            load('y'),
+            load("X_num") if dir_.joinpath("X_num_train.npy").exists() else None,
+            load("X_cat") if dir_.joinpath("X_cat_train.npy").exists() else None,
+            load("y"),
             {},
-            TaskType(info['task_type']),
-            info.get('n_classes'),
+            TaskType(info["task_type"]),
+            info.get("n_classes"),
         )
 
     @property
@@ -101,11 +105,11 @@ class Dataset:
 
     @property
     def n_num_features(self) -> int:
-        return 0 if self.X_num is None else self.X_num['train'].shape[1]
+        return 0 if self.X_num is None else self.X_num["train"].shape[1]
 
     @property
     def n_cat_features(self) -> int:
-        return 0 if self.X_cat is None else self.X_cat['train'].shape[1]
+        return 0 if self.X_cat is None else self.X_cat["train"].shape[1]
 
     @property
     def n_features(self) -> int:
@@ -119,8 +123,7 @@ class Dataset:
         if self.is_multiclass:
             assert self.n_classes is not None
             return self.n_classes
-        else:
-            return 1
+        return 1
 
     def get_category_sizes(self, part: str) -> List[int]:
         return [] if self.X_cat is None else get_category_sizes(self.X_cat[part])
@@ -137,40 +140,44 @@ class Dataset:
             for x in predictions
         }
         if self.task_type == TaskType.REGRESSION:
-            score_key = 'rmse'
+            score_key = "rmse"
             score_sign = -1
         else:
-            score_key = 'accuracy'
+            score_key = "accuracy"
             score_sign = 1
         for part_metrics in metrics.values():
-            part_metrics['score'] = score_sign * part_metrics[score_key]
+            part_metrics["score"] = score_sign * part_metrics[score_key]
         return metrics
+
 
 def change_val(dataset: Dataset, val_size: float = 0.2):
     # should be done before transformations
 
-    y = np.concatenate([dataset.y['train'], dataset.y['val']], axis=0)
+    y = np.concatenate([dataset.y["train"], dataset.y["val"]], axis=0)
 
     ixs = np.arange(y.shape[0])
     if dataset.is_regression:
         train_ixs, val_ixs = train_test_split(ixs, test_size=val_size, random_state=777)
     else:
-        train_ixs, val_ixs = train_test_split(ixs, test_size=val_size, random_state=777, stratify=y)
+        train_ixs, val_ixs = train_test_split(
+            ixs, test_size=val_size, random_state=777, stratify=y
+        )
 
-    dataset.y['train'] = y[train_ixs]
-    dataset.y['val'] = y[val_ixs]
+    dataset.y["train"] = y[train_ixs]
+    dataset.y["val"] = y[val_ixs]
 
     if dataset.X_num is not None:
-        X_num = np.concatenate([dataset.X_num['train'], dataset.X_num['val']], axis=0)
-        dataset.X_num['train'] = X_num[train_ixs]
-        dataset.X_num['val'] = X_num[val_ixs]
+        X_num = np.concatenate([dataset.X_num["train"], dataset.X_num["val"]], axis=0)
+        dataset.X_num["train"] = X_num[train_ixs]
+        dataset.X_num["val"] = X_num[val_ixs]
 
     if dataset.X_cat is not None:
-        X_cat = np.concatenate([dataset.X_cat['train'], dataset.X_cat['val']], axis=0)
-        dataset.X_cat['train'] = X_cat[train_ixs]
-        dataset.X_cat['val'] = X_cat[val_ixs]
+        X_cat = np.concatenate([dataset.X_cat["train"], dataset.X_cat["val"]], axis=0)
+        dataset.X_cat["train"] = X_cat[train_ixs]
+        dataset.X_cat["val"] = X_cat[val_ixs]
 
     return dataset
+
 
 def num_process_nans(dataset: Dataset, policy: Optional[NumNanPolicy]) -> Dataset:
     assert dataset.X_num is not None
@@ -180,44 +187,47 @@ def num_process_nans(dataset: Dataset, policy: Optional[NumNanPolicy]) -> Datase
         return dataset
 
     assert policy is not None
-    if policy == 'drop-rows':
+    if policy == "drop-rows":
         valid_masks = {k: ~v.any(1) for k, v in nan_masks.items()}
-        assert valid_masks[
-            'test'
-        ].all(), 'Cannot drop test rows, since this will affect the final metrics.'
+        assert valid_masks["test"].all(), (
+            "Cannot drop test rows, since this will affect the final metrics."
+        )
         new_data = {}
-        for data_name in ['X_num', 'X_cat', 'y']:
+        for data_name in ["X_num", "X_cat", "y"]:
             data_dict = getattr(dataset, data_name)
             if data_dict is not None:
                 new_data[data_name] = {
                     k: v[valid_masks[k]] for k, v in data_dict.items()
                 }
         dataset = replace(dataset, **new_data)
-    elif policy == 'mean':
-        new_values = np.nanmean(dataset.X_num['train'], axis=0)
+    elif policy == "mean":
+        new_values = np.nanmean(dataset.X_num["train"], axis=0)
         X_num = deepcopy(dataset.X_num)
         for k, v in X_num.items():
             num_nan_indices = np.where(nan_masks[k])
             v[num_nan_indices] = np.take(new_values, num_nan_indices[1])
         dataset = replace(dataset, X_num=X_num)
     else:
-        assert util.raise_unknown('policy', policy)
+        assert util.raise_unknown("policy", policy)
     return dataset
 
 
 # Inspired by: https://github.com/yandex-research/rtdl/blob/a4c93a32b334ef55d2a0559a4407c8306ffeeaee/lib/data.py#L20
 def normalize(
-    X: ArrayDict, normalization: Normalization, seed: Optional[int], return_normalizer : bool = False
+    X: ArrayDict,
+    normalization: Normalization,
+    seed: Optional[int],
+    return_normalizer: bool = False,
 ) -> ArrayDict:
-    X_train = X['train']
-    if normalization == 'standard':
+    X_train = X["train"]
+    if normalization == "standard":
         normalizer = sklearn.preprocessing.StandardScaler()
-    elif normalization == 'minmax':
+    elif normalization == "minmax":
         normalizer = sklearn.preprocessing.MinMaxScaler()
-    elif normalization == 'quantile':
+    elif normalization == "quantile":
         normalizer = sklearn.preprocessing.QuantileTransformer(
-            output_distribution='normal',
-            n_quantiles=max(min(X['train'].shape[0] // 30, 1000), 10),
+            output_distribution="normal",
+            n_quantiles=max(min(X["train"].shape[0] // 30, 1000), 10),
             subsample=int(1e9),
             random_state=seed,
         )
@@ -230,7 +240,7 @@ def normalize(
         #         X_train.shape
         #     )
     else:
-        util.raise_unknown('normalization', normalization)
+        util.raise_unknown("normalization", normalization)
     normalizer.fit(X_train)
     if return_normalizer:
         return {k: normalizer.transform(v) for k, v in X.items()}, normalizer
@@ -243,12 +253,12 @@ def cat_process_nans(X: ArrayDict, policy: Optional[CatNanPolicy]) -> ArrayDict:
     if any(x.any() for x in nan_masks.values()):  # type: ignore[code]
         if policy is None:
             X_new = X
-        elif policy == 'most_frequent':
+        elif policy == "most_frequent":
             imputer = SimpleImputer(missing_values=CAT_MISSING_VALUE, strategy=policy)  # type: ignore[code]
-            imputer.fit(X['train'])
+            imputer.fit(X["train"])
             X_new = {k: cast(np.ndarray, imputer.transform(v)) for k, v in X.items()}
         else:
-            util.raise_unknown('categorical NaN policy', policy)
+            util.raise_unknown("categorical NaN policy", policy)
     else:
         assert policy is None
         X_new = X
@@ -257,10 +267,10 @@ def cat_process_nans(X: ArrayDict, policy: Optional[CatNanPolicy]) -> ArrayDict:
 
 def cat_drop_rare(X: ArrayDict, min_frequency: float) -> ArrayDict:
     assert 0.0 < min_frequency < 1.0
-    min_count = round(len(X['train']) * min_frequency)
+    min_count = round(len(X["train"]) * min_frequency)
     X_new = {x: [] for x in X}
-    for column_idx in range(X['train'].shape[1]):
-        counter = Counter(X['train'][:, column_idx].tolist())
+    for column_idx in range(X["train"].shape[1]):
+        counter = Counter(X["train"][:, column_idx].tolist())
         popular_categories = {k for k, v in counter.items() if v >= min_count}
         for part in X_new:
             X_new[part].append(
@@ -277,26 +287,27 @@ def cat_encode(
     encoding: Optional[CatEncoding],
     y_train: Optional[np.ndarray],
     seed: Optional[int],
-    return_encoder : bool = False
+    return_encoder: bool = False,
 ) -> Tuple[ArrayDict, bool, Optional[Any]]:  # (X, is_converted_to_numerical)
-    if encoding != 'counter':
+    if encoding != "counter":
         y_train = None
 
     # Step 1. Map strings to 0-based ranges
 
     if encoding is None:
-        unknown_value = np.iinfo('int64').max - 3
+        unknown_value = np.iinfo("int64").max - 3
         oe = sklearn.preprocessing.OrdinalEncoder(
-            handle_unknown='use_encoded_value',  # type: ignore[code]
+            handle_unknown="use_encoded_value",  # type: ignore[code]
             unknown_value=unknown_value,  # type: ignore[code]
-            dtype='int64',  # type: ignore[code]
-        ).fit(X['train'])
+            dtype="int64",  # type: ignore[code]
+        ).fit(X["train"])
         encoder = make_pipeline(oe)
-        encoder.fit(X['train'])
+        encoder.fit(X["train"])
         X = {k: encoder.transform(v) for k, v in X.items()}
-        max_values = X['train'].max(axis=0)
+        max_values = X["train"].max(axis=0)
         for part in X.keys():
-            if part == 'train': continue
+            if part == "train":
+                continue
             for column_idx in range(X[part].shape[1]):
                 X[part][X[part][:, column_idx] == unknown_value, column_idx] = (
                     max_values[column_idx] + 1
@@ -307,46 +318,48 @@ def cat_encode(
 
     # Step 2. Encode.
 
-    elif encoding == 'one-hot':
+    if encoding == "one-hot":
         ohe = sklearn.preprocessing.OneHotEncoder(
-            handle_unknown='ignore', sparse=False, dtype=np.float32 # type: ignore[code]
+            handle_unknown="ignore",
+            sparse=False,
+            dtype=np.float32,  # type: ignore[code]
         )
         encoder = make_pipeline(ohe)
 
         # encoder.steps.append(('ohe', ohe))
-        encoder.fit(X['train'])
+        encoder.fit(X["train"])
         X = {k: encoder.transform(v) for k, v in X.items()}
-    elif encoding == 'counter':
+    elif encoding == "counter":
         assert y_train is not None
         assert seed is not None
         loe = LeaveOneOutEncoder(sigma=0.1, random_state=seed, return_df=False)
-        encoder.steps.append(('loe', loe))
-        encoder.fit(X['train'], y_train)
-        X = {k: encoder.transform(v).astype('float32') for k, v in X.items()}  # type: ignore[code]
-        if not isinstance(X['train'], pd.DataFrame):
+        encoder.steps.append(("loe", loe))
+        encoder.fit(X["train"], y_train)
+        X = {k: encoder.transform(v).astype("float32") for k, v in X.items()}  # type: ignore[code]
+        if not isinstance(X["train"], pd.DataFrame):
             X = {k: v.values for k, v in X.items()}  # type: ignore[code]
     else:
-        util.raise_unknown('encoding', encoding)
-    
+        util.raise_unknown("encoding", encoding)
+
     if return_encoder:
-        return X, True, encoder # type: ignore[code]
+        return X, True, encoder  # type: ignore[code]
     return (X, True)
 
 
 def build_target(
     y: ArrayDict, policy: Optional[YPolicy], task_type: TaskType
 ) -> Tuple[ArrayDict, Dict[str, Any]]:
-    info: Dict[str, Any] = {'policy': policy}
+    info: Dict[str, Any] = {"policy": policy}
     if policy is None:
         pass
-    elif policy == 'default':
+    elif policy == "default":
         if task_type == TaskType.REGRESSION:
-            mean, std = float(y['train'].mean()), float(y['train'].std())
+            mean, std = float(y["train"].mean()), float(y["train"].std())
             y = {k: (v - mean) / std for k, v in y.items()}
-            info['mean'] = mean
-            info['std'] = std
+            info["mean"] = mean
+            info["std"] = std
     else:
-        util.raise_unknown('policy', policy)
+        util.raise_unknown("policy", policy)
     return y, info
 
 
@@ -358,24 +371,24 @@ class Transformations:
     cat_nan_policy: Optional[CatNanPolicy] = None
     cat_min_frequency: Optional[float] = None
     cat_encoding: Optional[CatEncoding] = None
-    y_policy: Optional[YPolicy] = 'default'
+    y_policy: Optional[YPolicy] = "default"
 
 
 def transform_dataset(
     dataset: Dataset,
     transformations: Transformations,
     cache_dir: Optional[Path],
-    transform_cols_num: int = 0
+    transform_cols_num: int = 0,
 ) -> Dataset:
     # WARNING: the order of transformations matters. Moreover, the current
     # implementation is not ideal in that sense.
     if cache_dir is not None:
         transformations_md5 = hashlib.md5(
-            str(transformations).encode('utf-8')
+            str(transformations).encode("utf-8")
         ).hexdigest()
-        transformations_str = '__'.join(map(str, astuple(transformations)))
+        transformations_str = "__".join(map(str, astuple(transformations)))
         cache_path = (
-            cache_dir / f'cache__{transformations_str}__{transformations_md5}.pickle'
+            cache_dir / f"cache__{transformations_str}__{transformations_md5}.pickle"
         )
         if cache_path.exists():
             cache_transformations, value = util.load_pickle(cache_path)
@@ -384,8 +397,7 @@ def transform_dataset(
                     f"Using cached features: {cache_dir.name + '/' + cache_path.name}"
                 )
                 return value
-            else:
-                raise RuntimeError(f'Hash collision for {cache_path}')
+            raise RuntimeError(f"Hash collision for {cache_path}")
     else:
         cache_path = None
 
@@ -401,10 +413,10 @@ def transform_dataset(
             X_num,
             transformations.normalization,
             transformations.seed,
-            return_normalizer=True
+            return_normalizer=True,
         )
         num_transform = num_transform
-    
+
     if dataset.X_cat is None:
         assert transformations.cat_nan_policy is None
         assert transformations.cat_min_frequency is None
@@ -417,9 +429,9 @@ def transform_dataset(
         X_cat, is_num, cat_transform = cat_encode(
             X_cat,
             transformations.cat_encoding,
-            dataset.y['train'],
+            dataset.y["train"],
             transformations.seed,
-            return_encoder=True
+            return_encoder=True,
         )
         if is_num:
             X_num = (
@@ -438,14 +450,12 @@ def transform_dataset(
     if cache_path is not None:
         util.dump_pickle((transformations, dataset), cache_path)
     # if return_transforms:
-        # return dataset, num_transform, cat_transform
+    # return dataset, num_transform, cat_transform
     return dataset
 
 
 def build_dataset(
-    path: Union[str, Path],
-    transformations: Transformations,
-    cache: bool
+    path: Union[str, Path], transformations: Transformations, cache: bool
 ) -> Dataset:
     path = Path(path)
     dataset = Dataset.from_dir(path)
@@ -459,7 +469,7 @@ def prepare_tensors(
         None if x is None else {k: torch.as_tensor(v) for k, v in x.items()}
         for x in [dataset.X_num, dataset.X_cat, dataset.y]
     )
-    if device.type != 'cpu':
+    if device.type != "cpu":
         X_num, X_cat, Y = (
             None if x is None else {k: v.to(device) for k, v in x.items()}
             for x in [X_num, X_cat, Y]
@@ -470,29 +480,37 @@ def prepare_tensors(
         Y = {k: v.float() for k, v in Y.items()}
     return X_num, X_cat, Y
 
+
 ###############
 ## DataLoader##
 ###############
 
+
 class TabDataset(torch.utils.data.Dataset):
-    def __init__(
-        self, dataset : Dataset, split : Literal['train', 'val', 'test']
-    ):
+    def __init__(self, dataset: Dataset, split: Literal["train", "val", "test"]):
         super().__init__()
-        
-        self.X_num = torch.from_numpy(dataset.X_num[split]) if dataset.X_num is not None else None
-        self.X_cat = torch.from_numpy(dataset.X_cat[split]) if dataset.X_cat is not None else None
+
+        self.X_num = (
+            torch.from_numpy(dataset.X_num[split])
+            if dataset.X_num is not None
+            else None
+        )
+        self.X_cat = (
+            torch.from_numpy(dataset.X_cat[split])
+            if dataset.X_cat is not None
+            else None
+        )
         self.y = torch.from_numpy(dataset.y[split])
 
         assert self.y is not None
-        assert self.X_num is not None or self.X_cat is not None 
+        assert self.X_num is not None or self.X_cat is not None
 
     def __len__(self):
         return len(self.y)
 
     def __getitem__(self, idx):
         out_dict = {
-            'y': self.y[idx].long() if self.y is not None else None,
+            "y": self.y[idx].long() if self.y is not None else None,
         }
 
         x = np.empty((0,))
@@ -502,48 +520,52 @@ class TabDataset(torch.utils.data.Dataset):
             x = torch.cat([x, self.X_cat[idx]], dim=0)
         return x.float(), out_dict
 
+
 def prepare_dataloader(
-    dataset : Dataset,
-    split : str,
+    dataset: Dataset,
+    split: str,
     batch_size: int,
 ):
-
     torch_dataset = TabDataset(dataset, split)
     loader = torch.utils.data.DataLoader(
         torch_dataset,
         batch_size=batch_size,
-        shuffle=(split == 'train'),
+        shuffle=(split == "train"),
         num_workers=1,
     )
     while True:
         yield from loader
 
+
 def prepare_torch_dataloader(
-    dataset : Dataset,
-    split : str,
-    shuffle : bool,
+    dataset: Dataset,
+    split: str,
+    shuffle: bool,
     batch_size: int,
 ) -> torch.utils.data.DataLoader:
-
     torch_dataset = TabDataset(dataset, split)
-    loader = torch.utils.data.DataLoader(torch_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1)
+    loader = torch.utils.data.DataLoader(
+        torch_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=1
+    )
 
     return loader
 
-def dataset_from_csv(paths : Dict[str, str], cat_features, target, T):
-    assert 'train' in paths
+
+def dataset_from_csv(paths: Dict[str, str], cat_features, target, T):
+    assert "train" in paths
     y = {}
     X_num = {}
     X_cat = {} if len(cat_features) else None
-    for split in paths.keys():
+    for split in paths:
         df = pd.read_csv(paths[split])
         y[split] = df[target].to_numpy().astype(float)
         if X_cat is not None:
             X_cat[split] = df[cat_features].to_numpy().astype(str)
         X_num[split] = df.drop(cat_features + [target], axis=1).to_numpy().astype(float)
 
-    dataset = Dataset(X_num, X_cat, y, {}, None, len(np.unique(y['train'])))
+    dataset = Dataset(X_num, X_cat, y, {}, None, len(np.unique(y["train"])))
     return transform_dataset(dataset, T, None)
+
 
 class FastTensorDataLoader:
     """
@@ -552,6 +574,7 @@ class FastTensorDataLoader:
     the dataset and calls cat (slow).
     Source: https://discuss.pytorch.org/t/dataloader-much-slower-than-manual-batching/27014/6
     """
+
     def __init__(self, *tensors, batch_size=32, shuffle=False):
         """
         Initialize a FastTensorDataLoader.
@@ -573,6 +596,7 @@ class FastTensorDataLoader:
         if remainder > 0:
             n_batches += 1
         self.n_batches = n_batches
+
     def __iter__(self):
         if self.shuffle:
             r = torch.randperm(self.dataset_len)
@@ -583,61 +607,73 @@ class FastTensorDataLoader:
     def __next__(self):
         if self.i >= self.dataset_len:
             raise StopIteration
-        batch = tuple(t[self.i:self.i+self.batch_size] for t in self.tensors)
+        batch = tuple(t[self.i : self.i + self.batch_size] for t in self.tensors)
         self.i += self.batch_size
         return batch
 
     def __len__(self):
         return self.n_batches
 
+
 def prepare_fast_dataloader(
-    D : Dataset,
-    split : str,
-    batch_size: int,
-    y_type: str = 'float'
+    D: Dataset, split: str, batch_size: int, y_type: str = "float"
 ):
     if D.X_cat is not None:
         if D.X_num is not None:
-            X = torch.from_numpy(np.concatenate([D.X_num[split], D.X_cat[split]], axis=1)).float()
+            X = torch.from_numpy(
+                np.concatenate([D.X_num[split], D.X_cat[split]], axis=1)
+            ).float()
         else:
             X = torch.from_numpy(D.X_cat[split]).float()
     else:
         X = torch.from_numpy(D.X_num[split]).float()
-    if y_type == 'float':
+    if y_type == "float":
         y = torch.from_numpy(D.y[split]).float()
     else:
         y = torch.from_numpy(D.y[split]).long()
-    dataloader = FastTensorDataLoader(X, y, batch_size=batch_size, shuffle=(split=='train'))
+    dataloader = FastTensorDataLoader(
+        X, y, batch_size=batch_size, shuffle=(split == "train")
+    )
     while True:
         yield from dataloader
 
-def prepare_fast_torch_dataloader(
-    D : Dataset,
-    split : str,
-    batch_size: int
-):
+
+def prepare_fast_torch_dataloader(D: Dataset, split: str, batch_size: int):
     if D.X_cat is not None:
-        X = torch.from_numpy(np.concatenate([D.X_num[split], D.X_cat[split]], axis=1)).float()
+        X = torch.from_numpy(
+            np.concatenate([D.X_num[split], D.X_cat[split]], axis=1)
+        ).float()
     else:
         X = torch.from_numpy(D.X_num[split]).float()
     y = torch.from_numpy(D.y[split])
-    dataloader = FastTensorDataLoader(X, y, batch_size=batch_size, shuffle=(split=='train'))
+    dataloader = FastTensorDataLoader(
+        X, y, batch_size=batch_size, shuffle=(split == "train")
+    )
     return dataloader
+
 
 def round_columns(X_real, X_synth, columns):
     for col in columns:
-        uniq = np.unique(X_real[:,col])
-        dist = cdist(X_synth[:, col][:, np.newaxis].astype(float), uniq[:, np.newaxis].astype(float))
+        uniq = np.unique(X_real[:, col])
+        dist = cdist(
+            X_synth[:, col][:, np.newaxis].astype(float),
+            uniq[:, np.newaxis].astype(float),
+        )
         X_synth[:, col] = uniq[dist.argmin(axis=1)]
     return X_synth
 
-def concat_features(D : Dataset):
+
+def concat_features(D: Dataset):
     if D.X_num is None:
         assert D.X_cat is not None
-        X = {k: pd.DataFrame(v, columns=range(D.n_features)) for k, v in D.X_cat.items()}
+        X = {
+            k: pd.DataFrame(v, columns=range(D.n_features)) for k, v in D.X_cat.items()
+        }
     elif D.X_cat is None:
         assert D.X_num is not None
-        X = {k: pd.DataFrame(v, columns=range(D.n_features)) for k, v in D.X_num.items()}
+        X = {
+            k: pd.DataFrame(v, columns=range(D.n_features)) for k, v in D.X_num.items()
+        }
     else:
         X = {
             part: pd.concat(
@@ -655,39 +691,56 @@ def concat_features(D : Dataset):
 
     return X
 
+
 def concat_to_pd(X_num, X_cat, y):
     if X_num is None:
-        return pd.concat([
-            pd.DataFrame(X_cat, columns=list(range(X_cat.shape[1]))),
-            pd.DataFrame(y, columns=['y'])
-        ], axis=1)
+        return pd.concat(
+            [
+                pd.DataFrame(X_cat, columns=list(range(X_cat.shape[1]))),
+                pd.DataFrame(y, columns=["y"]),
+            ],
+            axis=1,
+        )
     if X_cat is not None:
-        return pd.concat([
+        return pd.concat(
+            [
+                pd.DataFrame(X_num, columns=list(range(X_num.shape[1]))),
+                pd.DataFrame(
+                    X_cat,
+                    columns=list(
+                        range(X_num.shape[1], X_num.shape[1] + X_cat.shape[1])
+                    ),
+                ),
+                pd.DataFrame(y, columns=["y"]),
+            ],
+            axis=1,
+        )
+    return pd.concat(
+        [
             pd.DataFrame(X_num, columns=list(range(X_num.shape[1]))),
-            pd.DataFrame(X_cat, columns=list(range(X_num.shape[1], X_num.shape[1] + X_cat.shape[1]))),
-            pd.DataFrame(y, columns=['y'])
-        ], axis=1)
-    return pd.concat([
-            pd.DataFrame(X_num, columns=list(range(X_num.shape[1]))),
-            pd.DataFrame(y, columns=['y'])
-        ], axis=1)
+            pd.DataFrame(y, columns=["y"]),
+        ],
+        axis=1,
+    )
 
-def read_pure_data(path, split='train'):
-    y = np.load(os.path.join(path, f'y_{split}.npy'), allow_pickle=True)
+
+def read_pure_data(path, split="train"):
+    y = np.load(os.path.join(path, f"y_{split}.npy"), allow_pickle=True)
     X_num = None
     X_cat = None
-    if os.path.exists(os.path.join(path, f'X_num_{split}.npy')):
-        X_num = np.load(os.path.join(path, f'X_num_{split}.npy'), allow_pickle=True)
-    if os.path.exists(os.path.join(path, f'X_cat_{split}.npy')):
-        X_cat = np.load(os.path.join(path, f'X_cat_{split}.npy'), allow_pickle=True)
+    if os.path.exists(os.path.join(path, f"X_num_{split}.npy")):
+        X_num = np.load(os.path.join(path, f"X_num_{split}.npy"), allow_pickle=True)
+    if os.path.exists(os.path.join(path, f"X_cat_{split}.npy")):
+        X_cat = np.load(os.path.join(path, f"X_cat_{split}.npy"), allow_pickle=True)
 
     return X_num, X_cat, y
 
+
 def read_changed_val(path, val_size=0.2):
     path = Path(path)
-    X_num_train, X_cat_train, y_train = read_pure_data(path, 'train')
-    X_num_val, X_cat_val, y_val = read_pure_data(path, 'val')
-    is_regression = load_json(path / 'info.json')['task_type'] == 'regression'
+    X_num_train, X_cat_train, y_train = read_pure_data(path, "train")
+    X_num_val, X_cat_val, y_val = read_pure_data(path, "val")
+    is_regression = load_json(path / "info.json")["task_type"] == "regression"
 
     y = np.concatenate([y_train, y_val], axis=0)
 
@@ -695,7 +748,9 @@ def read_changed_val(path, val_size=0.2):
     if is_regression:
         train_ixs, val_ixs = train_test_split(ixs, test_size=val_size, random_state=777)
     else:
-        train_ixs, val_ixs = train_test_split(ixs, test_size=val_size, random_state=777, stratify=y)
+        train_ixs, val_ixs = train_test_split(
+            ixs, test_size=val_size, random_state=777, stratify=y
+        )
     y_train = y[train_ixs]
     y_val = y[val_ixs]
 
@@ -708,15 +763,17 @@ def read_changed_val(path, val_size=0.2):
         X_cat = np.concatenate([X_cat_train, X_cat_val], axis=0)
         X_cat_train = X_cat[train_ixs]
         X_cat_val = X_cat[val_ixs]
-    
+
     return X_num_train, X_cat_train, y_train, X_num_val, X_cat_val, y_val
+
 
 #############
 
+
 def load_dataset_info(dataset_dir_name: str) -> Dict[str, Any]:
     path = Path("data/" + dataset_dir_name)
-    info = util.load_json(path / 'info.json')
-    info['size'] = info['train_size'] + info['val_size'] + info['test_size']
-    info['n_features'] = info['n_num_features'] + info['n_cat_features']
-    info['path'] = path
+    info = util.load_json(path / "info.json")
+    info["size"] = info["train_size"] + info["val_size"] + info["test_size"]
+    info["n_features"] = info["n_num_features"] + info["n_cat_features"]
+    info["path"] = path
     return info

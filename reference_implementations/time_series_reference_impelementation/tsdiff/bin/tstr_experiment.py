@@ -1,42 +1,41 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-from functools import partial
-import math
-import logging
 import argparse
+import logging
+import math
+from functools import partial
 from pathlib import Path
 
-import yaml
-import torch
 import numpy as np
-from tqdm.auto import tqdm
-
-from gluonts.mx import DeepAREstimator, TransformerEstimator
-from gluonts.evaluation import Evaluator
+import torch
+import uncond_ts_diff.configs as diffusion_configs
+import yaml
 from gluonts.dataset.loader import TrainDataLoader
+from gluonts.dataset.split import slice_data_entry
+from gluonts.evaluation import Evaluator
 from gluonts.itertools import Cached
-from gluonts.torch.batchify import batchify
+from gluonts.mx import DeepAREstimator, TransformerEstimator
 from gluonts.time_feature import (
     get_lags_for_frequency,
     time_features_from_frequency_str,
 )
-from gluonts.dataset.split import slice_data_entry
+from gluonts.torch.batchify import batchify
 from gluonts.transform import AdhocTransform, Chain
-
+from tqdm.auto import tqdm
+from uncond_ts_diff.dataset import get_gts_dataset
+from uncond_ts_diff.model import LinearEstimator, TSDiff
 from uncond_ts_diff.utils import (
+    GluonTSNumpyDataset,
     ScaleAndAddMeanFeature,
     ScaleAndAddMinMaxFeature,
-    GluonTSNumpyDataset,
-    create_transforms,
-    create_splitter,
-    get_next_file_num,
     add_config_to_argparser,
-    make_evaluation_predictions_with_scaling,
+    create_splitter,
+    create_transforms,
     filter_metrics,
+    get_next_file_num,
+    make_evaluation_predictions_with_scaling,
 )
-from uncond_ts_diff.model import TSDiff, LinearEstimator
-from uncond_ts_diff.dataset import get_gts_dataset
-import uncond_ts_diff.configs as diffusion_configs
+
 
 DOWNSTREAM_MODELS = ["linear", "deepar", "transformer"]
 
@@ -95,9 +94,9 @@ def sample_real(
         except StopIteration:
             data_iter = iter(data_loader)
             batch = next(data_iter)
-        ts = np.concatenate(
-            [batch["past_target"], batch["future_target"]], axis=-1
-        )[:, -n_timesteps:]
+        ts = np.concatenate([batch["past_target"], batch["future_target"]], axis=-1)[
+            :, -n_timesteps:
+        ]
         real_samples.append(ts)
 
     real_samples = np.concatenate(real_samples, axis=0)[:num_samples]
@@ -220,9 +219,7 @@ def main(config: dict, log_dir: str, samples_path: str):
     # Create log_dir
     log_dir: Path = Path(log_dir)
     base_dirname = "tstr_log"
-    run_num = get_next_file_num(
-        base_dirname, log_dir, file_type="", separator="-"
-    )
+    run_num = get_next_file_num(base_dirname, log_dir, file_type="", separator="-")
     log_dir = log_dir / f"{base_dirname}-{run_num}"
     log_dir.mkdir(exist_ok=True, parents=True)
     logger.info(f"Logging to {log_dir}")
@@ -304,9 +301,7 @@ def main(config: dict, log_dir: str, samples_path: str):
 
 if __name__ == "__main__":
     # Setup Logger
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.INFO)
 
@@ -318,9 +313,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--out_dir", type=str, default="./results", help="Path to results dir"
     )
-    parser.add_argument(
-        "--samples_path", type=str, help="Path to generated samples"
-    )
+    parser.add_argument("--samples_path", type=str, help="Path to generated samples")
     args, _ = parser.parse_known_args()
 
     with open(args.config, "r") as fp:

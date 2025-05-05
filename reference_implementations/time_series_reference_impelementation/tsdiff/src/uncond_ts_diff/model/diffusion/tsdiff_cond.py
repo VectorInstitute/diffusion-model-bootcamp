@@ -3,11 +3,10 @@
 import torch
 from gluonts.torch.model.predictor import PyTorchPredictor
 from gluonts.torch.util import lagged_sequence_values
-
 from uncond_ts_diff.arch import BackboneModel
-from uncond_ts_diff.model.diffusion._base import TSDiffBase
-from uncond_ts_diff.model.diffusion._base import PREDICTION_INPUT_NAMES
+from uncond_ts_diff.model.diffusion._base import PREDICTION_INPUT_NAMES, TSDiffBase
 from uncond_ts_diff.utils import get_lags_for_freq
+
 
 PREDICTION_INPUT_NAMES = PREDICTION_INPUT_NAMES + ["orig_past_target"]
 
@@ -63,9 +62,7 @@ class TSDiffCond(TSDiffBase):
         self.lags_seq = get_lags_for_freq(freq) if use_lags else [0]
         self.backbone = BackboneModel(
             **backbone_parameters,
-            num_features=(
-                num_features + 2 + (len(self.lags_seq) if use_lags else 0)
-            ),
+            num_features=(num_features + 2 + (len(self.lags_seq) if use_lags else 0)),
             init_skip=init_skip,
         )
         self.noise_observed = noise_observed
@@ -74,23 +71,21 @@ class TSDiffCond(TSDiffBase):
         device = next(self.parameters()).device
         prior = data["past_target"][:, : -self.context_length]
         context = data["past_target"][:, -self.context_length :]
-        context_observed = data["past_observed_values"][
-            :, -self.context_length :
-        ]
+        context_observed = data["past_observed_values"][:, -self.context_length :]
         scaled_context, scale = self.scaler(context, context_observed)
         features = []
 
         scaled_prior = prior / scale
         scaled_future = data["future_target"] / scale
         scaled_orig_context = (
-            data["orig_past_target"][:, -self.context_length :]
-        ) / scale
+            (data["orig_past_target"][:, -self.context_length :]) / scale
+        )
 
         x = torch.cat([scaled_orig_context, scaled_future], dim=1)
         observation_mask = torch.zeros_like(x, device=device)
-        observation_mask[:, : -self.prediction_length] = data[
-            "past_observed_values"
-        ][:, -self.context_length :].data
+        observation_mask[:, : -self.prediction_length] = data["past_observed_values"][
+            :, -self.context_length :
+        ].data
         x_past = torch.cat(
             [scaled_context, torch.zeros_like(scaled_future)], dim=1
         ).clone()
@@ -105,18 +100,14 @@ class TSDiffCond(TSDiffBase):
             features,
             dim=1,
         )
-        expanded_static_feat = static_feat.unsqueeze(1).expand(
-            -1, x.shape[1], -1
-        )
+        expanded_static_feat = static_feat.unsqueeze(1).expand(-1, x.shape[1], -1)
         features = []
         if self.use_features:
             features.append(expanded_static_feat)
 
             time_features = []
             if data["past_time_feat"] is not None:
-                time_features.append(
-                    data["past_time_feat"][:, -self.context_length :]
-                )
+                time_features.append(data["past_time_feat"][:, -self.context_length :])
             if data["future_time_feat"] is not None:
                 time_features.append(data["future_time_feat"])
             features.append(torch.cat(time_features, dim=1))
@@ -165,9 +156,7 @@ class TSDiffCond(TSDiffBase):
         observation_mask = features[..., -1:]
         loss_mask = 1 - observation_mask
 
-        t = torch.randint(
-            0, self.timesteps, (x.shape[0],), device=device
-        ).long()
+        t = torch.randint(0, self.timesteps, (x.shape[0],), device=device).long()
         elbo_loss = self.step(x, t, features, loss_mask)
         return {
             "loss": elbo_loss,
@@ -204,9 +193,7 @@ class TSDiffCond(TSDiffBase):
 
         for i in reversed(range(0, self.timesteps)):
             if not self.noise_observed:
-                seq = observation_mask * observation + seq * (
-                    1 - observation_mask
-                )
+                seq = observation_mask * observation + seq * (1 - observation_mask)
 
             seq = self.p_sample(
                 seq,

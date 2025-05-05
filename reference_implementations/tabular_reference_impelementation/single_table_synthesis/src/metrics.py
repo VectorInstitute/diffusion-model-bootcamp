@@ -1,5 +1,5 @@
 import enum
-from typing import Any, Optional, Tuple, Dict, Union, cast
+from typing import Any, Dict, Optional, Tuple, Union, cast
 
 import numpy as np
 import scipy.special

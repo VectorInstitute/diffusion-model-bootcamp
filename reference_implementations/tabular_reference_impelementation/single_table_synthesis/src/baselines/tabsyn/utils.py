@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 import numpy as np
 import pandas as pd
 import torch
@@ -107,11 +108,10 @@ def split_num_cat_target(syn_data, info, num_inverse, cat_inverse, device):
 
     syn_num = x_hat_num.cpu().numpy()
     syn_num = num_inverse(syn_num)
-    
+
     if len(syn_cat) > 0:
         syn_cat = torch.stack(syn_cat).t().cpu().numpy()
         syn_cat = cat_inverse(syn_cat)
-
 
     if info["task_type"] == "regression":
         syn_target = syn_num[:, : len(target_col_idx)]

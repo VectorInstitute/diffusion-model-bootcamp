@@ -1,6 +1,6 @@
 import os
-from urllib import request
 import zipfile
+from urllib import request
 
 
 def unzip_file(zip_filepath, dest_path):
@@ -39,5 +39,5 @@ if __name__ == "__main__":
         "news": "https://archive.ics.uci.edu/static/public/332/online+news+popularity.zip",
     }
 
-    for name in NAME_URL_DICT_UCI.keys():
+    for name in NAME_URL_DICT_UCI:
         download_from_uci(name, DATA_DIR, NAME_URL_DICT_UCI)

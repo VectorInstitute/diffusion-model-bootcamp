@@ -1,7 +1,7 @@
 import numpy as np
 import torch
-import torch.nn as nn
 from diff_models import diff_CSDI
+from torch import nn
 
 
 class CSDI_base(nn.Module):
@@ -82,10 +82,9 @@ class CSDI_base(nn.Module):
             torch.tensor(self.alpha).float().to(self.device).unsqueeze(1).unsqueeze(1)
         )
 
-
     def time_embedding(self, pos, d_model=128):
         """
-        def time_embedding
+        Def time_embedding
         - Constructs a time-based embedding for input positions using sinusoidal functions, commonly used in models like transformers.
         - `pos`: Tensor of positions for which embeddings are generated.
         - `d_model`: Dimensionality of the embedding; defaults to 128.
@@ -100,15 +99,13 @@ class CSDI_base(nn.Module):
         pe[:, :, 1::2] = torch.cos(position * div_term)
         return pe
 
-
-
     def get_randmask(self, observed_mask):
         """
-        def get_randmask
-        - Generates a random mask for observed data points to simulate missingness during training, 
+        Def get_randmask
+        - Generates a random mask for observed data points to simulate missingness during training,
             enhancing the model's robustness.
         - `observed_mask`: A tensor indicating which data points are observed.
-        - This function randomly masks observed data points based on their existing observed status, 
+        - This function randomly masks observed data points based on their existing observed status,
             useful in self-supervised setups where true missing patterns need to be approximated.
         """
         rand_for_mask = torch.rand_like(observed_mask) * observed_mask
@@ -121,11 +118,9 @@ class CSDI_base(nn.Module):
         cond_mask = (rand_for_mask > 0).reshape(observed_mask.shape).float()
         return cond_mask
 
-
-
     def get_hist_mask(self, observed_mask, for_pattern_mask=None):
         """
-        def get_hist_mask
+        Def get_hist_mask
         - Generates a historical mask based on the observed data and possibly an external pattern.
         - `observed_mask`: A tensor indicating observed data points.
         - `for_pattern_mask`: An optional tensor to provide historical patterns for masking, defaults to the observed_mask.
@@ -162,7 +157,7 @@ class CSDI_base(nn.Module):
        - Constructs side information by combining time and feature embeddings with an optional conditional mask.
        - `observed_tp`: Tensor of observed time points.
        - `cond_mask`: A condition mask indicating available data points.
-       - This function enriches the model input with necessary contextual information, adjusting for the presence of observed data 
+       - This function enriches the model input with necessary contextual information, adjusting for the presence of observed data
          and enhancing the model's ability to interpret and impute based on time and feature dependencies.
     """
 
@@ -206,17 +201,16 @@ class CSDI_base(nn.Module):
             loss_sum += loss.detach()
         return loss_sum / self.num_steps
 
-
     def calc_loss(
         self, observed_data, cond_mask, observed_mask, side_info, is_train, set_t=-1
     ):
         """
-        def calc_loss
+        Def calc_loss
         - Calculates loss for a specific step in the diffusion process during training or validation.
         - `is_train`: Flag to distinguish between training and validation modes.
         - `set_t`: Specific time step at which to calculate the loss; if not in training mode, the step is predetermined.
         - Determines the diffusion time step randomly during training or uses the provided step during validation.
-        - Applies the diffusion model to compute predictions for noisy data, compares these predictions against actual noise added, 
+        - Applies the diffusion model to compute predictions for noisy data, compares these predictions against actual noise added,
             and computes the loss based on differences weighted by the target mask (areas not covered by the condition mask).
         """
         B, K, L = observed_data.shape
@@ -240,10 +234,9 @@ class CSDI_base(nn.Module):
         loss = (residual**2).sum() / (num_eval if num_eval > 0 else 1)
         return loss
 
-
     def set_input_to_diffmodel(self, noisy_data, observed_data, cond_mask):
         """
-        def set_input_to_diffmodel
+        Def set_input_to_diffmodel
         - Prepares the input tensors for the diffusion model based on the model's conditionality.
         - `noisy_data`: Tensor containing the data perturbed with noise.
         - `observed_data`: Original data tensor containing observed values.
@@ -260,10 +253,9 @@ class CSDI_base(nn.Module):
 
         return total_input
 
-
     def impute(self, observed_data, cond_mask, side_info, n_samples):
         """
-        def impute
+        Def impute
         - Conducts the imputation of missing values based on observed data, condition masks, and side information.
         - `observed_data`: The observed portion of the data.
         - `cond_mask`: Mask indicating observed (1) and missing (0) parts of the data.
@@ -324,7 +316,7 @@ class CSDI_base(nn.Module):
 
     def forward(self, batch, is_train=1):
         """
-        def forward
+        Def forward
         - Defines the forward pass of the model, integrating preprocessing, conditioning, and loss calculation.
         - `batch`: Input batch containing data and various masks.
         - `is_train`: Flag to indicate if the model is in training (1) or validation (0) mode.
@@ -359,7 +351,7 @@ class CSDI_base(nn.Module):
 
     def evaluate(self, batch, n_samples):
         """
-        def evaluate
+        Def evaluate
         - Conducts evaluation of the model by generating imputed samples and preparing metrics.
         - `batch`: Input batch containing observed data and masks.
         - `n_samples`: Number of imputation samples to generate for each point.

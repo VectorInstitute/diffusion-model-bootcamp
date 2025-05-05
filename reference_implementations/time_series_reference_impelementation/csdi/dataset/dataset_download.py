@@ -1,6 +1,8 @@
 import os
-import wget
 import tarfile
+
+import wget
+
 
 def download_physio_data(data_dir, dataset_tar_path, extracted_dir_path):
     """
@@ -8,7 +10,6 @@ def download_physio_data(data_dir, dataset_tar_path, extracted_dir_path):
     If not present, it downloads and extracts the dataset. You can change the download path
     or save location by modifying the 'data/' directory path in the code.
     """
-
     # Ensure the data directory exists, create if it does not
     os.makedirs(data_dir, exist_ok=True)
 

@@ -1,32 +1,30 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import argparse
+import logging
 from pathlib import Path
 
-import yaml
-import torch
-from tqdm.auto import tqdm
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
-
+import torch
+import uncond_ts_diff.configs as diffusion_configs
+import yaml
+from gluonts.dataset.field_names import FieldName
 from gluonts.dataset.loader import TrainDataLoader, ValidationDataLoader
 from gluonts.dataset.split import OffsetSplitter
+from gluonts.evaluation import Evaluator, make_evaluation_predictions
 from gluonts.itertools import Cached
 from gluonts.torch.batchify import batchify
-from gluonts.evaluation import make_evaluation_predictions, Evaluator
-from gluonts.dataset.field_names import FieldName
-
-import uncond_ts_diff.configs as diffusion_configs
+from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
+from tqdm.auto import tqdm
 from uncond_ts_diff.dataset import get_gts_dataset
 from uncond_ts_diff.model import TSDiffCond
 from uncond_ts_diff.utils import (
-    create_transforms,
-    create_splitter,
-    add_config_to_argparser,
-    filter_metrics,
-    MaskInput,
     ConcatDataset,
+    MaskInput,
+    add_config_to_argparser,
+    create_splitter,
+    create_transforms,
+    filter_metrics,
 )
 
 
@@ -159,9 +157,7 @@ def main(config, log_dir):
         _, val_gen = train_val_splitter.split(training_data)
 
         val_dataset = ConcatDataset(
-            val_gen.generate_instances(
-                config["prediction_length"], num_rolling_evals
-            )
+            val_gen.generate_instances(config["prediction_length"], num_rolling_evals)
         )
         val_splitter = create_splitter(
             past_length=config["context_length"] + max(model.lags_seq),
@@ -216,9 +212,7 @@ def main(config, log_dir):
         check_val_every_n_epoch=config["eval_every"],
     )
     logger.info(f"Logging to {trainer.logger.log_dir}")
-    trainer.fit(
-        model, train_dataloaders=data_loader, val_dataloaders=val_loader
-    )
+    trainer.fit(model, train_dataloaders=data_loader, val_dataloaders=val_loader)
     logger.info("Training completed.")
 
     best_ckpt_path = Path(trainer.logger.log_dir) / "best_checkpoint.ckpt"
@@ -250,9 +244,7 @@ def main(config, log_dir):
 
 if __name__ == "__main__":
     # Setup Logger
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.INFO)
 
@@ -261,9 +253,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c", "--config", type=str, required=True, help="Path to yaml config"
     )
-    parser.add_argument(
-        "--out_dir", type=str, default="./", help="Path to results dir"
-    )
+    parser.add_argument("--out_dir", type=str, default="./", help="Path to results dir")
     args, _ = parser.parse_known_args()
 
     with open(args.config, "r") as fp:

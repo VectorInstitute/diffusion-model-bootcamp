@@ -17,9 +17,7 @@ class SinusoidalPositionEmbeddings(nn.Module):
         device = time.device
         half_dim = self.dim // 2
         embeddings = math.log(10000) / (half_dim - 1)
-        embeddings = torch.exp(
-            torch.arange(half_dim, device=device) * -embeddings
-        )
+        embeddings = torch.exp(torch.arange(half_dim, device=device) * -embeddings)
         embeddings = time[:, None] * embeddings[None, :]
         embeddings = torch.cat((embeddings.sin(), embeddings.cos()), dim=-1)
         return embeddings
@@ -41,9 +39,7 @@ class S4Layer(nn.Module):
             postact=None,
         )
         self.norm = nn.LayerNorm(d_model)
-        self.dropout = (
-            nn.Dropout1d(dropout) if dropout > 0.0 else nn.Identity()
-        )
+        self.dropout = nn.Dropout1d(dropout) if dropout > 0.0 else nn.Identity()
 
     def forward(self, x):
         """
@@ -144,9 +140,7 @@ class BackboneModel(nn.Module):
         residual_blocks = []
         for i in range(num_residual_blocks):
             residual_blocks.append(
-                residual_block(
-                    hidden_dim, num_features=num_features, dropout=dropout
-                )
+                residual_block(hidden_dim, num_features=num_features, dropout=dropout)
             )
         self.residual_blocks = nn.ModuleList(residual_blocks)
         self.step_embedding = SinusoidalPositionEmbeddings(step_emb)

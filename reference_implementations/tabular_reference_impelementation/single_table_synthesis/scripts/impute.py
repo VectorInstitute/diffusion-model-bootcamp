@@ -1,18 +1,20 @@
-import os
-import numpy as np
 import json
-import torch
-
-from src.baselines.tabsyn.model.modules import MLPDiffusion, Model
-from src.baselines.tabsyn.utils import recover_data, split_num_cat_target
-from src.baselines.tabsyn.model.vae import Model_VAE, Encoder_model, Decoder_model
-from src.data import preprocess
-from src import load_config
-
+import os
 import warnings
+
+import numpy as np
+import torch
+from src import load_config
+from src.baselines.tabsyn.model.modules import MLPDiffusion, Model
+from src.baselines.tabsyn.model.vae import Decoder_model, Encoder_model, Model_VAE
+from src.baselines.tabsyn.utils import recover_data, split_num_cat_target
+from src.data import preprocess
+
+
 warnings.filterwarnings("ignore")
 
 # class_labels = None
+
 
 ## One denoising step from t to t-1
 def step(net, num_steps, i, t_cur, t_next, x_next, S_churn, S_min, S_max, S_noise):
@@ -87,7 +89,9 @@ def impute(dataname, processed_data_dir, info_path, model_path, impute_path, dev
         print(f"Trial {trial} started!")
         # prepare data
         X_num, X_cat, categories, d_numerical = preprocess(
-            data_dir, task_type=info["task_type"], transforms=raw_config["transforms"],
+            data_dir,
+            task_type=info["task_type"],
+            transforms=raw_config["transforms"],
         )
 
         X_train_num, X_test_num = X_num
@@ -172,7 +176,9 @@ def impute(dataname, processed_data_dir, info_path, model_path, impute_path, dev
         # load trained diffusion model from checkpoint
         denoise_fn = MLPDiffusion(in_dim, 1024).to(device)
         model = Model(denoise_fn=denoise_fn, hid_dim=train_z.shape[1]).to(device)
-        model.load_state_dict(torch.load(os.path.join(model_path, dataname, "model.pt")))
+        model.load_state_dict(
+            torch.load(os.path.join(model_path, dataname, "model.pt"))
+        )
 
         # Define the masking area
         mask_idx = np.array([0])
@@ -222,7 +228,18 @@ def impute(dataname, processed_data_dir, info_path, model_path, impute_path, dev
                         n_prev = torch.randn_like(x).to(device) * t_next
 
                         x_known_t_prev = x + n_prev
-                        x_unknown_t_prev = step(net, num_steps, i, t_cur, t_next, x_t, S_churn, S_min, S_max, S_noise)
+                        x_unknown_t_prev = step(
+                            net,
+                            num_steps,
+                            i,
+                            t_cur,
+                            t_next,
+                            x_t,
+                            S_churn,
+                            S_min,
+                            S_max,
+                            S_noise,
+                        )
 
                         x_t_prev = x_known_t_prev * (1 - mask) + x_unknown_t_prev * mask
 
@@ -235,7 +252,10 @@ def impute(dataname, processed_data_dir, info_path, model_path, impute_path, dev
 
         # get detokenizer
         _, _, _, _, num_inverse, cat_inverse = preprocess(
-            data_dir, task_type=info["task_type"], transforms=raw_config["transforms"], inverse=True
+            data_dir,
+            task_type=info["task_type"],
+            transforms=raw_config["transforms"],
+            inverse=True,
         )
         x_t = x_t * 2 + mean.to(device)
 

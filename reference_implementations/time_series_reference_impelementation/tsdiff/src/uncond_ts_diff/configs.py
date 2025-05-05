@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from uncond_ts_diff.utils import linear_beta_schedule
 
+
 residual_block_s4_backbone = {
     "input_dim": 1,
     "hidden_dim": 128,

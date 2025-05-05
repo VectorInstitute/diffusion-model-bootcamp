@@ -2,13 +2,13 @@ from typing import Callable, Union
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
-from torch import Tensor
 from src.baselines.tabsyn.model.utils import (
     EDMLoss,
 )
+from torch import Tensor, nn
+
 
 ModuleType = Union[str, Callable[..., nn.Module]]
 
@@ -38,7 +38,9 @@ class PositionalEmbedding(torch.nn.Module):
 
 def reglu(x: Tensor) -> Tensor:
     """The ReGLU activation function from [1].
-    References:
+
+    References
+    ----------
         [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
     assert x.shape[-1] % 2 == 0
@@ -48,7 +50,9 @@ def reglu(x: Tensor) -> Tensor:
 
 def geglu(x: Tensor) -> Tensor:
     """The GEGLU activation function from [1].
-    References:
+
+    References
+    ----------
         [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
     assert x.shape[-1] % 2 == 0
@@ -59,14 +63,16 @@ def geglu(x: Tensor) -> Tensor:
 class ReGLU(nn.Module):
     """The ReGLU activation function from [shazeer2020glu].
 
-    Examples:
+    Examples
+    --------
         .. testcode::
 
             module = ReGLU()
             x = torch.randn(3, 4)
             assert module(x).shape == (3, 2)
 
-    References:
+    References
+    ----------
         * [shazeer2020glu] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
 
@@ -77,14 +83,16 @@ class ReGLU(nn.Module):
 class GEGLU(nn.Module):
     """The GEGLU activation function from [shazeer2020glu].
 
-    Examples:
+    Examples
+    --------
         .. testcode::
 
             module = GEGLU()
             x = torch.randn(3, 4)
             assert module(x).shape == (3, 2)
 
-    References:
+    References
+    ----------
         * [shazeer2020glu] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
 
@@ -136,14 +144,14 @@ class MLPDiffusion(nn.Module):
         return self.mlp(x)
 
 
-
 class Precond(nn.Module):
-    def __init__(self,
+    def __init__(
+        self,
         denoise_fn,
         hid_dim,
-        sigma_min = 0,                # Minimum supported noise level.
-        sigma_max = float('inf'),     # Maximum supported noise level.
-        sigma_data = 0.5,              # Expected standard deviation of the training data.
+        sigma_min=0,  # Minimum supported noise level.
+        sigma_max=float("inf"),  # Maximum supported noise level.
+        sigma_data=0.5,  # Expected standard deviation of the training data.
     ):
         super().__init__()
 
@@ -155,15 +163,14 @@ class Precond(nn.Module):
         self.denoise_fn_F = denoise_fn
 
     def forward(self, x, sigma):
-
         x = x.to(torch.float32)
 
         sigma = sigma.to(torch.float32).reshape(-1, 1)
         dtype = torch.float32
 
-        c_skip = self.sigma_data ** 2 / (sigma ** 2 + self.sigma_data ** 2)
-        c_out = sigma * self.sigma_data / (sigma ** 2 + self.sigma_data ** 2).sqrt()
-        c_in = 1 / (self.sigma_data ** 2 + sigma ** 2).sqrt()
+        c_skip = self.sigma_data**2 / (sigma**2 + self.sigma_data**2)
+        c_out = sigma * self.sigma_data / (sigma**2 + self.sigma_data**2).sqrt()
+        c_in = 1 / (self.sigma_data**2 + sigma**2).sqrt()
         c_noise = sigma.log() / 4
 
         x_in = c_in * x
@@ -175,16 +182,27 @@ class Precond(nn.Module):
 
     def round_sigma(self, sigma):
         return torch.as_tensor(sigma)
-    
+
 
 class Model(nn.Module):
-    def __init__(self, denoise_fn, hid_dim, P_mean=-1.2, P_std=1.2, sigma_data=0.5, gamma=5, opts=None, pfgmpp = False):
+    def __init__(
+        self,
+        denoise_fn,
+        hid_dim,
+        P_mean=-1.2,
+        P_std=1.2,
+        sigma_data=0.5,
+        gamma=5,
+        opts=None,
+        pfgmpp=False,
+    ):
         super().__init__()
 
         self.denoise_fn_D = Precond(denoise_fn, hid_dim)
-        self.loss_fn = EDMLoss(P_mean, P_std, sigma_data, hid_dim=hid_dim, gamma=5, opts=None)
+        self.loss_fn = EDMLoss(
+            P_mean, P_std, sigma_data, hid_dim=hid_dim, gamma=5, opts=None
+        )
 
     def forward(self, x):
-
         loss = self.loss_fn(self.denoise_fn_D, x)
         return loss.mean(-1).mean()

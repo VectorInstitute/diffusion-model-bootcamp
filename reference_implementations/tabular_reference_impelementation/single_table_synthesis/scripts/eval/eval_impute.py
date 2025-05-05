@@ -1,13 +1,13 @@
 import os
+
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import f1_score, roc_auc_score
+from sklearn.preprocessing import OneHotEncoder
 from src import load_config
 
 
 def eval_impute(dataname, processed_data_dir, impute_path, col=0):
-
     # set paths
     data_dir = os.path.join(processed_data_dir, dataname)
     real_path = f"{data_dir}/test.csv"
@@ -33,7 +33,6 @@ def eval_impute(dataname, processed_data_dir, impute_path, col=0):
         syn_y.append(encoder.transform(target).toarray())
 
     syn_y = np.stack(syn_y).mean(0)
-
 
     micro_f1 = f1_score(real_y.argmax(axis=1), syn_y.argmax(axis=1), average="micro")
     auc = roc_auc_score(real_y, syn_y, average="micro")

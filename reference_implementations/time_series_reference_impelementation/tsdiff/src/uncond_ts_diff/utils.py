@@ -1,41 +1,41 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-from copy import deepcopy
-from typing import Type, Dict
-from pathlib import Path
-from argparse import ArgumentParser, ArgumentTypeError
-from functools import partial
 import re
+from argparse import ArgumentParser, ArgumentTypeError
+from copy import deepcopy
+from functools import partial
+from pathlib import Path
+from typing import Dict, Type
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import pandas as pd
+import seaborn as sns
 import torch
-from torch.utils.data import Dataset
-from pandas.tseries.frequencies import to_offset
-
 from gluonts.core.component import validated
 from gluonts.dataset import DataEntry
 from gluonts.dataset.field_names import FieldName
 from gluonts.dataset.split import split
 from gluonts.dataset.util import period_index
+from gluonts.model.forecast import SampleForecast
 from gluonts.transform import (
-    Chain,
-    RemoveFields,
-    SetField,
-    AsNumpyArray,
+    AddAgeFeature,
     AddObservedValuesIndicator,
     AddTimeFeatures,
-    AddAgeFeature,
-    VstackFeatures,
-    MapTransformation,
+    AsNumpyArray,
+    Chain,
     ExpectedNumInstanceSampler,
     InstanceSplitter,
+    MapTransformation,
+    RemoveFields,
+    SetField,
     TestSplitSampler,
     ValidationSplitSampler,
+    VstackFeatures,
 )
-from gluonts.model.forecast import SampleForecast
+from pandas.tseries.frequencies import to_offset
+from torch.utils.data import Dataset
+
 
 sns.set(
     style="white",
@@ -56,13 +56,11 @@ def extract(a, t, x_shape):
 
 def cosine_beta_schedule(timesteps, s=0.008):
     """
-    cosine schedule as proposed in https://arxiv.org/abs/2102.09672
+    Cosine schedule as proposed in https://arxiv.org/abs/2102.09672
     """
     steps = timesteps + 1
     x = torch.linspace(0, timesteps, steps)
-    alphas_cumprod = (
-        torch.cos(((x / timesteps) + s) / (1 + s) * torch.pi * 0.5) ** 2
-    )
+    alphas_cumprod = torch.cos(((x / timesteps) + s) / (1 + s) * torch.pi * 0.5) ** 2
     alphas_cumprod = alphas_cumprod / alphas_cumprod[0]
     betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
     return torch.clip(betas, 0.0001, 0.9999)
@@ -98,18 +96,14 @@ def plot_train_stats(df: pd.DataFrame, y_keys=None, skip_first_epoch=True):
 def get_lags_for_freq(freq_str: str):
     offset = to_offset(freq_str)
     if offset.n > 1:
-        raise NotImplementedError(
-            "Lags for freq multiple > 1 are not implemented yet."
-        )
+        raise NotImplementedError("Lags for freq multiple > 1 are not implemented yet.")
     if offset.name == "H":
         lags_seq = [24 * i for i in [1, 2, 3, 4, 5, 6, 7, 14, 21, 28]]
     elif offset.name == "D" or offset.name == "B":
         # TODO: Fix lags for B
         lags_seq = [30 * i for i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
     else:
-        raise NotImplementedError(
-            f"Lags for {freq_str} are not implemented yet."
-        )
+        raise NotImplementedError(f"Lags for {freq_str} are not implemented yet.")
     return lags_seq
 
 
@@ -176,11 +170,7 @@ def create_transforms(
             VstackFeatures(
                 output_field=FieldName.FEAT_TIME,
                 input_fields=[FieldName.FEAT_TIME, FieldName.FEAT_AGE]
-                + (
-                    [FieldName.FEAT_DYNAMIC_REAL]
-                    if num_feat_dynamic_real > 0
-                    else []
-                ),
+                + ([FieldName.FEAT_DYNAMIC_REAL] if num_feat_dynamic_real > 0 else []),
             ),
         ]
     )
@@ -257,10 +247,9 @@ def str2bool(v):
         return v
     if v.lower() in ("yes", "true", "t", "y", "1"):
         return True
-    elif v.lower() in ("no", "false", "f", "n", "0"):
+    if v.lower() in ("no", "false", "f", "n", "0"):
         return False
-    else:
-        raise ArgumentTypeError("Boolean value expected.")
+    raise ArgumentTypeError("Boolean value expected.")
 
 
 def add_config_to_argparser(config: Dict, parser: ArgumentParser):
@@ -371,11 +360,10 @@ class ScaleAndAddMinMaxFeature(MapTransformation):
 def descale(data, scale, scaling_type):
     if scaling_type == "mean":
         return data * scale
-    elif scaling_type == "min-max":
+    if scaling_type == "min-max":
         loc, scale = scale
         return data * scale + loc
-    else:
-        raise ValueError(f"Unknown scaling type: {scaling_type}")
+    raise ValueError(f"Unknown scaling type: {scaling_type}")
 
 
 def predict_and_descale(predictor, dataset, num_samples, scaling_type):
@@ -409,9 +397,7 @@ def predict_and_descale(predictor, dataset, num_samples, scaling_type):
     for input_ts, fcst in zip(dataset, forecasts):
         scale = input_ts["scale"]
         if isinstance(fcst, SampleForecast):
-            fcst.samples = descale(
-                fcst.samples, scale, scaling_type=scaling_type
-            )
+            fcst.samples = descale(fcst.samples, scale, scaling_type=scaling_type)
         else:
             raise ValueError("Only SampleForecast objects supported!")
         yield fcst
@@ -438,9 +424,7 @@ def to_dataframe_and_descale(input_label, scaling_type) -> pd.DataFrame:
     targets = [entry[FieldName.TARGET] for entry in input_label]
     full_target = np.concatenate(targets, axis=-1)
     full_target = descale(full_target, scale, scaling_type=scaling_type)
-    index = period_index(
-        {FieldName.START: start, FieldName.TARGET: full_target}
-    )
+    index = period_index({FieldName.START: start, FieldName.TARGET: full_target})
     return pd.DataFrame(full_target.transpose(), index=index)
 
 
@@ -553,12 +537,10 @@ class MaskInput(MapTransformation):
             data["past_observed_values"][-self.missing_values :] = 0
         elif self.missing_scenario == "BM-B" and self.missing_values > 0:
             data["past_target"][
-                -self.context_length : -self.context_length
-                + self.missing_values
+                -self.context_length : -self.context_length + self.missing_values
             ] = 0
             data["past_observed_values"][
-                -self.context_length : -self.context_length
-                + self.missing_values
+                -self.context_length : -self.context_length + self.missing_values
             ] = 0
         elif self.missing_scenario == "RM" and self.missing_values > 0:
             weights = torch.ones(self.context_length)
@@ -578,9 +560,7 @@ class ConcatDataset:
     def _concat(self, test_pairs):
         for t1, t2 in test_pairs:
             yield {
-                "target": np.concatenate(
-                    [t1["target"], t2["target"]], axis=self.axis
-                ),
+                "target": np.concatenate([t1["target"], t2["target"]], axis=self.axis),
                 "start": t1["start"],
             }
 

@@ -1,8 +1,9 @@
+import pickle
+
 import numpy as np
 import torch
 from torch.optim import Adam
 from tqdm import tqdm
-import pickle
 
 
 def train(

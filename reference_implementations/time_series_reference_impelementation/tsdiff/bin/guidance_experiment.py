@@ -1,30 +1,30 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import argparse
+import logging
 from pathlib import Path
 
-import yaml
 import torch
-from tqdm.auto import tqdm
-from gluonts.dataset.field_names import FieldName
-from gluonts.evaluation import make_evaluation_predictions, Evaluator
-
-from uncond_ts_diff.utils import (
-    create_transforms,
-    create_splitter,
-    get_next_file_num,
-    add_config_to_argparser,
-    filter_metrics,
-    MaskInput,
-)
-from uncond_ts_diff.model import TSDiff
-from uncond_ts_diff.dataset import get_gts_dataset
-from uncond_ts_diff.sampler import (
-    DDPMGuidance,
-    DDIMGuidance,
-)
 import uncond_ts_diff.configs as diffusion_configs
+import yaml
+from gluonts.dataset.field_names import FieldName
+from gluonts.evaluation import Evaluator, make_evaluation_predictions
+from tqdm.auto import tqdm
+from uncond_ts_diff.dataset import get_gts_dataset
+from uncond_ts_diff.model import TSDiff
+from uncond_ts_diff.sampler import (
+    DDIMGuidance,
+    DDPMGuidance,
+)
+from uncond_ts_diff.utils import (
+    MaskInput,
+    add_config_to_argparser,
+    create_splitter,
+    create_transforms,
+    filter_metrics,
+    get_next_file_num,
+)
+
 
 guidance_map = {"ddpm": DDPMGuidance, "ddim": DDIMGuidance}
 
@@ -51,9 +51,7 @@ def load_model(config):
     return model
 
 
-def evaluate_guidance(
-    config, model, test_dataset, transformation, num_samples=100
-):
+def evaluate_guidance(config, model, test_dataset, transformation, num_samples=100):
     logger.info(f"Evaluating with {num_samples} samples.")
     results = []
     if config["setup"] == "forecasting":
@@ -85,9 +83,7 @@ def evaluate_guidance(
             **sampler_params,
         )
 
-        transformed_testdata = transformation.apply(
-            test_dataset, is_train=False
-        )
+        transformed_testdata = transformation.apply(test_dataset, is_train=False)
         test_splitter = create_splitter(
             past_length=config["context_length"] + max(model.lags_seq),
             future_length=config["prediction_length"],
@@ -155,9 +151,7 @@ def main(config: dict, log_dir: str):
     log_dir = Path(log_dir) / "guidance_logs"
     log_dir.mkdir(exist_ok=True, parents=True)
     base_filename = "results"
-    run_num = get_next_file_num(
-        base_filename, log_dir, file_type="yaml", separator="-"
-    )
+    run_num = get_next_file_num(base_filename, log_dir, file_type="yaml", separator="-")
     save_path = log_dir / f"{base_filename}-{run_num}.yaml"
 
     with open(save_path, "w") as fp:
@@ -171,9 +165,7 @@ def main(config: dict, log_dir: str):
 
 if __name__ == "__main__":
     # Setup Logger
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.INFO)
 

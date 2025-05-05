@@ -1,23 +1,22 @@
-import numpy as np
-import torch
-import torch.nn as nn
-
-from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 import argparse
+import json
+import os
+import time
 import warnings
 
-import os
-from tqdm import tqdm
-import json
-import time
-
+import numpy as np
+import torch
+from src import TabularDataset, preprocess
 from src.baselines.tabsyn.model.vae import (
-    Model_VAE,
-    Encoder_model,
     Decoder_model,
+    Encoder_model,
+    Model_VAE,
 )
-from src import preprocess, TabularDataset
+from torch import nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
 
 warnings.filterwarnings("ignore")
 
@@ -148,7 +147,7 @@ def main(args):
     start_time = time.time()
     for epoch in range(num_epochs):
         pbar = tqdm(train_loader, total=len(train_loader))
-        pbar.set_description(f"Epoch {epoch+1}/{num_epochs}")
+        pbar.set_description(f"Epoch {epoch + 1}/{num_epochs}")
 
         curr_loss_multi = 0.0
         curr_loss_gauss = 0.0

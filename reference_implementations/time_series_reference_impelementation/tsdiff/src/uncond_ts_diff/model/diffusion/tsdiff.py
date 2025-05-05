@@ -4,7 +4,6 @@ import copy
 
 import torch
 from gluonts.torch.util import lagged_sequence_values
-
 from uncond_ts_diff.arch import BackboneModel
 from uncond_ts_diff.model.diffusion._base import TSDiffBase
 from uncond_ts_diff.utils import get_lags_for_freq
@@ -67,16 +66,13 @@ class TSDiff(TSDiffBase):
         )
         self.ema_rate = []  # [0.9999]
         self.ema_state_dicts = [
-            copy.deepcopy(self.backbone.state_dict())
-            for _ in range(len(self.ema_rate))
+            copy.deepcopy(self.backbone.state_dict()) for _ in range(len(self.ema_rate))
         ]
 
     def _extract_features(self, data):
         prior = data["past_target"][:, : -self.context_length]
         context = data["past_target"][:, -self.context_length :]
-        context_observed = data["past_observed_values"][
-            :, -self.context_length :
-        ]
+        context_observed = data["past_observed_values"][:, -self.context_length :]
         if self.normalization == "zscore":
             scaled_context, scale = self.scaler(
                 context, context_observed, data["stats"]
@@ -98,17 +94,13 @@ class TSDiff(TSDiffBase):
             features,
             dim=1,
         )
-        expanded_static_feat = static_feat.unsqueeze(1).expand(
-            -1, x.shape[1], -1
-        )
+        expanded_static_feat = static_feat.unsqueeze(1).expand(-1, x.shape[1], -1)
 
         features = [expanded_static_feat]
 
         time_features = []
         if data["past_time_feat"] is not None:
-            time_features.append(
-                data["past_time_feat"][:, -self.context_length :]
-            )
+            time_features.append(data["past_time_feat"][:, -self.context_length :])
         if data["future_time_feat"] is not None:
             time_features.append(data["future_time_feat"])
         features.append(torch.cat(time_features, dim=1))
@@ -138,9 +130,7 @@ class TSDiff(TSDiffBase):
         device = next(self.backbone.parameters()).device
         seq_len = self.context_length + self.prediction_length
 
-        samples = torch.randn(
-            (num_samples, seq_len, self.input_dim), device=device
-        )
+        samples = torch.randn((num_samples, seq_len, self.input_dim), device=device)
 
         for i in reversed(range(0, self.timesteps)):
             t = torch.full((num_samples,), i, device=device, dtype=torch.long)

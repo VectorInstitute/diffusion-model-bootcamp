@@ -6,10 +6,10 @@ import math
 from typing import Callable, List, Type, Union
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
-from torch import Tensor
+from torch import Tensor, nn
+
 
 ModuleType = Union[str, Callable[..., nn.Module]]
 
@@ -56,7 +56,9 @@ def _all_or_none(values):
 
 def reglu(x: Tensor) -> Tensor:
     """The ReGLU activation function from [1].
-    References:
+
+    References
+    ----------
         [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
     assert x.shape[-1] % 2 == 0
@@ -66,7 +68,9 @@ def reglu(x: Tensor) -> Tensor:
 
 def geglu(x: Tensor) -> Tensor:
     """The GEGLU activation function from [1].
-    References:
+
+    References
+    ----------
         [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
     assert x.shape[-1] % 2 == 0
@@ -77,14 +81,16 @@ def geglu(x: Tensor) -> Tensor:
 class ReGLU(nn.Module):
     """The ReGLU activation function from [shazeer2020glu].
 
-    Examples:
+    Examples
+    --------
         .. testcode::
 
             module = ReGLU()
             x = torch.randn(3, 4)
             assert module(x).shape == (3, 2)
 
-    References:
+    References
+    ----------
         * [shazeer2020glu] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
 
@@ -95,14 +101,16 @@ class ReGLU(nn.Module):
 class GEGLU(nn.Module):
     """The GEGLU activation function from [shazeer2020glu].
 
-    Examples:
+    Examples
+    --------
         .. testcode::
 
             module = GEGLU()
             x = torch.randn(3, 4)
             assert module(x).shape == (3, 2)
 
-    References:
+    References
+    ----------
         * [shazeer2020glu] Noam Shazeer, "GLU Variants Improve Transformer", 2020
     """
 
@@ -134,14 +142,16 @@ class MLP(nn.Module):
           MLP: (in) -> Block -> ... -> Block -> Linear -> (out)
         Block: (in) -> Linear -> Activation -> Dropout -> (out)
 
-    Examples:
+    Examples
+    --------
         .. testcode::
 
             x = torch.randn(4, 2)
             module = MLP.make_baseline(x.shape[1], [3, 5], 0.1, 1)
             assert module(x).shape == (len(x), 1)
 
-    References:
+    References
+    ----------
         * [gorishniy2021revisiting] Yury Gorishniy, Ivan Rubachev, Valentin Khrulkov, Artem Babenko, "Revisiting Deep Learning Models for Tabular Data", 2021
     """
 
@@ -226,7 +236,8 @@ class MLP(nn.Module):
         Returns:
             MLP
 
-        References:
+        References
+        ----------
             * [gorishniy2021revisiting] Yury Gorishniy, Ivan Rubachev, Valentin Khrulkov, Artem Babenko, "Revisiting Deep Learning Models for Tabular Data", 2021
         """
         assert isinstance(dropout, float)
@@ -260,7 +271,9 @@ class ResNet(nn.Module):
                  |                                                                  |
          Block: (in) ------------------------------------------------------------> Add -> (out)
           Head: (in) -> Norm -> Activation -> Linear -> (out)
-    Examples:
+
+    Examples
+    --------
         .. testcode::
             x = torch.randn(4, 2)
             module = ResNet.make_baseline(
@@ -273,7 +286,9 @@ class ResNet(nn.Module):
                 d_out=1
             )
             assert module(x).shape == (len(x), 1)
-    References:
+
+    References
+    ----------
         * [gorishniy2021revisiting] Yury Gorishniy, Ivan Rubachev, Valentin Khrulkov, Artem Babenko, "Revisiting Deep Learning Models for Tabular Data", 2021
     """
 
@@ -407,7 +422,9 @@ class ResNet(nn.Module):
             d_hidden: the output size of the first linear layer in each Block
             dropout_first: the dropout rate of the first dropout layer in each Block.
             dropout_second: the dropout rate of the second dropout layer in each Block.
-        References:
+
+        References
+        ----------
             * [gorishniy2021revisiting] Yury Gorishniy, Ivan Rubachev, Valentin Khrulkov, Artem Babenko, "Revisiting Deep Learning Models for Tabular Data", 2021
         """
         return cls(

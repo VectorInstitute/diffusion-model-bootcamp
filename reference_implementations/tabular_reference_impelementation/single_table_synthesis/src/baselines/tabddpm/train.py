@@ -1,9 +1,10 @@
 import os
-import torch
-import numpy as np
-from copy import deepcopy
-import pandas as pd
 import time
+from copy import deepcopy
+
+import numpy as np
+import pandas as pd
+import torch
 
 
 class Trainer:
@@ -116,7 +117,7 @@ class Trainer:
                 if (step + 1) % 10000 == 0:
                     torch.save(
                         self.diffusion._denoise_fn.state_dict(),
-                        os.path.join(self.model_save_path, f"model_{step+1}.pt"),
+                        os.path.join(self.model_save_path, f"model_{step + 1}.pt"),
                     )
 
             # update_ema(self.ema_model.parameters(), self.diffusion._denoise_fn.parameters())

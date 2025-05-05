@@ -1,9 +1,9 @@
-import os
 import argparse
-from src.baselines.tabddpm.pipeline import TabDDPM
+import os
 
-import src
 import numpy as np
+import src
+from src.baselines.tabddpm.pipeline import TabDDPM
 
 
 def main(args):

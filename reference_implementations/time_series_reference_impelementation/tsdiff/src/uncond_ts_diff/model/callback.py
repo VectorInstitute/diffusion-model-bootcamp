@@ -1,20 +1,17 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-from copy import deepcopy
 import math
+from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
 import torch
-
 from gluonts.dataset.field_names import FieldName
-from gluonts.evaluation import make_evaluation_predictions, Evaluator
-
-from gluonts.transform import TestSplitSampler, InstanceSplitter
+from gluonts.evaluation import Evaluator, make_evaluation_predictions
+from gluonts.transform import InstanceSplitter, TestSplitSampler
 from pytorch_lightning import Callback
-
-from uncond_ts_diff.sampler import DDPMGuidance, DDIMGuidance
 from uncond_ts_diff.metrics import linear_pred_score
+from uncond_ts_diff.sampler import DDIMGuidance, DDPMGuidance
 from uncond_ts_diff.utils import ConcatDataset
 
 
@@ -101,9 +98,7 @@ class PredictiveScoreCallback(Callback):
 
         return real_samples
 
-    def _generate_synth_samples(
-        self, model, num_samples: int, batch_size: int = 1000
-    ):
+    def _generate_synth_samples(self, model, num_samples: int, batch_size: int = 1000):
         synth_samples = []
 
         n_iters = math.ceil(num_samples / batch_size)
@@ -208,9 +203,7 @@ class EvaluateCallback(Callback):
     def on_train_epoch_end(self, trainer, pl_module):
         if (pl_module.current_epoch + 1) % self.eval_every == 0:
             device = next(pl_module.backbone.parameters()).device
-            self.original_state_dict = deepcopy(
-                pl_module.backbone.state_dict()
-            )
+            self.original_state_dict = deepcopy(pl_module.backbone.state_dict())
             pl_module.eval()
             assert pl_module.training is False
             for label, state_dict in zip(
@@ -258,15 +251,11 @@ class EvaluateCallback(Callback):
                 forecasts_pytorch = list(forecast_it)
                 tss_pytorch = list(ts_it)
 
-                metrics_pytorch, per_ts = evaluator(
-                    tss_pytorch, forecasts_pytorch
-                )
+                metrics_pytorch, per_ts = evaluator(tss_pytorch, forecasts_pytorch)
                 metrics_pytorch["CRPS"] = metrics_pytorch["mean_wQuantileLoss"]
                 if metrics_pytorch["CRPS"] < pl_module.best_crps:
                     pl_module.best_crps = metrics_pytorch["CRPS"]
-                    ckpt_path = (
-                        Path(trainer.logger.log_dir) / "best_checkpoint.ckpt"
-                    )
+                    ckpt_path = Path(trainer.logger.log_dir) / "best_checkpoint.ckpt"
                     torch.save(
                         pl_module.state_dict(),
                         ckpt_path,
@@ -277,7 +266,5 @@ class EvaluateCallback(Callback):
                         for metric in self.log_metrics
                     }
                 )
-            pl_module.backbone.load_state_dict(
-                self.original_state_dict, strict=True
-            )
+            pl_module.backbone.load_state_dict(self.original_state_dict, strict=True)
             pl_module.train()

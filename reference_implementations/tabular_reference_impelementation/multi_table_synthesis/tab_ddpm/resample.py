@@ -1,5 +1,5 @@
-"""
-"""
+""" """
+
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -16,10 +16,9 @@ def create_named_schedule_sampler(name, diffusion):
     """
     if name == "uniform":
         return UniformSampler(diffusion)
-    elif name == "loss-second-moment":
+    if name == "loss-second-moment":
         return LossSecondMomentResampler(diffusion)
-    else:
-        raise NotImplementedError(f"unknown schedule sampler: {name}")
+    raise NotImplementedError(f"unknown schedule sampler: {name}")
 
 
 class ScheduleSampler(ABC):
@@ -136,7 +135,7 @@ class LossSecondMomentResampler(LossAwareSampler):
     def weights(self):
         if not self._warmed_up():
             return np.ones([self.diffusion.num_timesteps], dtype=np.float64)
-        weights = np.sqrt(np.mean(self._loss_history ** 2, axis=-1))
+        weights = np.sqrt(np.mean(self._loss_history**2, axis=-1))
         weights /= np.sum(weights)
         weights *= 1 - self.uniform_prob
         weights += self.uniform_prob / len(weights)

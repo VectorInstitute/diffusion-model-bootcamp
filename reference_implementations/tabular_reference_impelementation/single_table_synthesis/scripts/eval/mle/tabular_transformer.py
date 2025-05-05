@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 CATEGORICAL = "categorical"
 CONTINUOUS = "continuous"
 

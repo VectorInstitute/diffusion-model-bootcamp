@@ -1,7 +1,8 @@
-import torch
-import numpy as np
-import torch.nn.functional as F
 from inspect import isfunction
+
+import numpy as np
+import torch
+import torch.nn.functional as F
 
 
 def normal_kl(mean1, logvar1, mean2, logvar2):
@@ -84,7 +85,8 @@ def sum_except_batch(x, num_dims=1):
         x: Tensor, shape (batch_size, ...)
         num_dims: int, number of batch dims (default=1)
 
-    Returns:
+    Returns
+    -------
         x_sum: Tensor, shape (batch_size,)
     """
     return x.reshape(*x.shape[:num_dims], -1).sum(-1)

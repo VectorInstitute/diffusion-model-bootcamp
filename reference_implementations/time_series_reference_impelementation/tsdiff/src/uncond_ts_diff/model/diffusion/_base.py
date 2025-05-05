@@ -4,16 +4,15 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-
+import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-import pytorch_lightning as pl
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from gluonts.time_feature import time_features_from_frequency_str
 from gluonts.torch.modules.feature import FeatureEmbedder
 from gluonts.torch.modules.scaler import MeanScaler, NOPScaler
-
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from uncond_ts_diff.utils import extract
+
 
 PREDICTION_INPUT_NAMES = [
     "past_target",
@@ -50,18 +49,12 @@ class TSDiffBase(pl.LightningModule):
         self.sqrt_one_minus_beta = torch.sqrt(1.0 - self.betas)
         self.alphas = 1 - self.betas
         self.alphas_cumprod = torch.cumprod(self.alphas, axis=0)
-        self.alphas_cumprod_prev = F.pad(
-            self.alphas_cumprod[:-1], (1, 0), value=1.0
-        )
+        self.alphas_cumprod_prev = F.pad(self.alphas_cumprod[:-1], (1, 0), value=1.0)
         self.sqrt_recip_alphas = torch.sqrt(1.0 / self.alphas)
         self.sqrt_alphas_cumprod = torch.sqrt(self.alphas_cumprod)
-        self.sqrt_one_minus_alphas_cumprod = torch.sqrt(
-            1.0 - self.alphas_cumprod
-        )
+        self.sqrt_one_minus_alphas_cumprod = torch.sqrt(1.0 - self.alphas_cumprod)
         self.posterior_variance = (
-            self.betas
-            * (1.0 - self.alphas_cumprod_prev)
-            / (1.0 - self.alphas_cumprod)
+            self.betas * (1.0 - self.alphas_cumprod_prev) / (1.0 - self.alphas_cumprod)
         )
         self.logs = {}
         self.normalization = normalization
@@ -79,9 +72,7 @@ class TSDiffBase(pl.LightningModule):
             time_features_from_frequency_str(freq) if freq is not None else []
         )
 
-        self.num_feat_dynamic_real = (
-            1 + num_feat_dynamic_real + len(self.time_features)
-        )
+        self.num_feat_dynamic_real = 1 + num_feat_dynamic_real + len(self.time_features)
         self.num_feat_static_cat = max(num_feat_static_cat, 1)
         self.num_feat_static_real = max(num_feat_static_real, 1)
 
@@ -95,7 +86,7 @@ class TSDiffBase(pl.LightningModule):
         self.best_crps = np.inf
 
     def _extract_features(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -122,17 +113,12 @@ class TSDiffBase(pl.LightningModule):
         device = next(self.backbone.parameters()).device
         if noise is None:
             noise = torch.randn_like(x_start, device=device)
-        sqrt_alphas_cumprod_t = extract(
-            self.sqrt_alphas_cumprod, t, x_start.shape
-        )
+        sqrt_alphas_cumprod_t = extract(self.sqrt_alphas_cumprod, t, x_start.shape)
         sqrt_one_minus_alphas_cumprod_t = extract(
             self.sqrt_one_minus_alphas_cumprod, t, x_start.shape
         )
 
-        return (
-            sqrt_alphas_cumprod_t * x_start
-            + sqrt_one_minus_alphas_cumprod_t * noise
-        )
+        return sqrt_alphas_cumprod_t * x_start + sqrt_one_minus_alphas_cumprod_t * noise
 
     def p_losses(
         self,
@@ -155,11 +141,9 @@ class TSDiffBase(pl.LightningModule):
         elif loss_type == "l2":
             loss = F.mse_loss(noise, predicted_noise, reduction=reduction)
         elif loss_type == "huber":
-            loss = F.smooth_l1_loss(
-                noise, predicted_noise, reduction=reduction
-            )
+            loss = F.smooth_l1_loss(noise, predicted_noise, reduction=reduction)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         return loss, x_noisy, predicted_noise
 
@@ -178,10 +162,9 @@ class TSDiffBase(pl.LightningModule):
 
         if t_index == 0:
             return model_mean
-        else:
-            posterior_variance_t = extract(self.posterior_variance, t, x.shape)
-            noise = torch.randn_like(x)
-            return model_mean + torch.sqrt(posterior_variance_t) * noise
+        posterior_variance_t = extract(self.posterior_variance, t, x.shape)
+        noise = torch.randn_like(x)
+        return model_mean + torch.sqrt(posterior_variance_t) * noise
 
     @torch.no_grad()
     def p_sample_ddim(self, x, t, features=None, noise=None):
@@ -225,7 +208,8 @@ class TSDiffBase(pl.LightningModule):
             features (_type_, optional): _description_. Defaults to None.
             noise (Optional[torch.Tensor], optional): _description_. Defaults to None.
 
-        Returns:
+        Returns
+        -------
             torch.Tensor: _description_
         """
         if noise is None:
@@ -287,12 +271,10 @@ class TSDiffBase(pl.LightningModule):
             self.sqrt_one_minus_alphas_cumprod, t, xt.shape
         )
         sqrt_alphas_cumprod_t = extract(self.sqrt_alphas_cumprod, t, xt.shape)
-        return (
-            xt - sqrt_one_minus_alphas_cumprod_t * noise
-        ) / sqrt_alphas_cumprod_t
+        return (xt - sqrt_one_minus_alphas_cumprod_t * noise) / sqrt_alphas_cumprod_t
 
     def forward(self, x, mask):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def training_step(self, data, idx):
         assert self.training is True
@@ -302,9 +284,7 @@ class TSDiffBase(pl.LightningModule):
         else:
             x, _ = self.scaler(data, torch.ones_like(data))
 
-        t = torch.randint(
-            0, self.timesteps, (x.shape[0],), device=device
-        ).long()
+        t = torch.randint(0, self.timesteps, (x.shape[0],), device=device).long()
         elbo_loss, xt, noise = self.p_losses(x, t, features, loss_type="l2")
         return {
             "loss": elbo_loss,
@@ -323,9 +303,7 @@ class TSDiffBase(pl.LightningModule):
             x, _, features = self._extract_features(data)
         else:
             x, features = data, None
-        t = torch.randint(
-            0, self.timesteps, (x.shape[0],), device=device
-        ).long()
+        t = torch.randint(0, self.timesteps, (x.shape[0],), device=device).long()
         elbo_loss, xt, noise = self.p_losses(x, t, features, loss_type="l2")
         return {
             "loss": elbo_loss,

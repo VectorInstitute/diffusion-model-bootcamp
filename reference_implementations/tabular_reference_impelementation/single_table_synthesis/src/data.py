@@ -1,23 +1,24 @@
 import hashlib
+import os
 from collections import Counter
 from copy import deepcopy
 from dataclasses import astuple, dataclass, replace
 from pathlib import Path
-from typing import Any, Literal, Optional, Union, cast, Tuple, Dict, List
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
 import sklearn.preprocessing
 import torch
 from category_encoders import LeaveOneOutEncoder
 from sklearn.impute import SimpleImputer
-import os
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
 
 from . import util
 from .metrics import calculate_metrics as calculate_metrics_
-from .util import TaskType, load_json, get_categories
+from .util import TaskType, get_categories, load_json
+
 
 ArrayDict = Dict[str, np.ndarray]
 TensorDict = Dict[str, torch.Tensor]
@@ -104,8 +105,7 @@ class Dataset:
         if self.is_multiclass:
             assert self.n_classes is not None
             return self.n_classes
-        else:
-            return 1
+        return 1
 
     def get_category_sizes(self, part: str) -> List[int]:
         return [] if self.X_cat is None else get_category_sizes(self.X_cat[part])
@@ -141,11 +141,9 @@ class TabularDataset(Dataset):
         this_num = self.X_num[index]
         if self.X_cat is not None:
             this_cat = self.X_cat[index]
-            
-            return this_num,this_cat
-        else:
-            return this_num
 
+            return this_num, this_cat
+        return this_num
 
     def __len__(self):
         return self.X_num.shape[0]
@@ -173,7 +171,6 @@ def preprocess(
             X_train_cat, X_test_cat = None, None
         else:
             X_train_cat, X_test_cat = X_cat["train"], X_cat["test"]
-       
 
         categories = get_categories(X_train_cat)
         d_numerical = X_train_num.shape[1]
@@ -189,10 +186,8 @@ def preprocess(
                 cat_inverse = None
 
             return X_num, X_cat, categories, d_numerical, num_inverse, cat_inverse
-        else:
-            return X_num, X_cat, categories, d_numerical
-    else:
-        return dataset
+        return X_num, X_cat, categories, d_numerical
+    return dataset
 
 
 def change_val(dataset: Dataset, val_size: float = 0.2):
@@ -235,9 +230,9 @@ def num_process_nans(dataset: Dataset, policy: Optional[NumNanPolicy]) -> Datase
     assert policy is not None
     if policy == "drop-rows":
         valid_masks = {k: ~v.any(1) for k, v in nan_masks.items()}
-        assert valid_masks[
-            "test"
-        ].all(), "Cannot drop test rows, since this will affect the final metrics."
+        assert valid_masks["test"].all(), (
+            "Cannot drop test rows, since this will affect the final metrics."
+        )
         new_data = {}
         for data_name in ["X_num", "X_cat", "y"]:
             data_dict = getattr(dataset, data_name)
@@ -365,7 +360,7 @@ def cat_encode(
 
     # Step 2. Encode.
 
-    elif encoding == "one-hot":
+    if encoding == "one-hot":
         ohe = sklearn.preprocessing.OneHotEncoder(
             handle_unknown="ignore",
             sparse=False,
@@ -445,8 +440,7 @@ def transform_dataset(
                     f"Using cached features: {cache_dir.name + '/' + cache_path.name}"
                 )
                 return value
-            else:
-                raise RuntimeError(f"Hash collision for {cache_path}")
+            raise RuntimeError(f"Hash collision for {cache_path}")
     else:
         cache_path = None
 
@@ -588,8 +582,7 @@ def concat_y_to_X(X, y):
         return y.reshape(-1, 1)
     if y.size > 0:
         return np.concatenate([y.reshape(-1, 1), X], axis=1)
-    else:
-        return X
+    return X
 
 
 def make_dataset(
@@ -599,7 +592,6 @@ def make_dataset(
     change_val: bool,
     concat=True,
 ):
-
     # classification
     if task_type == "binclass" or task_type == "multiclass":
         X_cat = (
@@ -638,7 +630,7 @@ def make_dataset(
                     X_num_t = concat_y_to_X(X_num_t, y_t)
                 X_num[split] = X_num_t
             if X_cat is not None:
-                X_cat[split] = X_cat_t                
+                X_cat[split] = X_cat_t
             if y is not None:
                 y[split] = y_t
 

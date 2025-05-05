@@ -1,38 +1,38 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-import json
-import copy
-import logging
 import argparse
+import copy
+import json
+import logging
 from pathlib import Path
 
-import yaml
-import torch
 import numpy as np
-from tqdm.auto import tqdm
-from gluonts.mx import DeepAREstimator, TransformerEstimator
-from gluonts.model.seasonal_naive import SeasonalNaivePredictor
-from gluonts.evaluation import make_evaluation_predictions, Evaluator
-from gluonts.dataset.loader import TrainDataLoader
-from gluonts.itertools import Cached
-from gluonts.torch.batchify import batchify
-
-from uncond_ts_diff.utils import (
-    create_transforms,
-    create_splitter,
-    get_next_file_num,
-    add_config_to_argparser,
-    filter_metrics,
-)
-from uncond_ts_diff.model import TSDiff, LinearEstimator
-from uncond_ts_diff.dataset import get_gts_dataset
-from uncond_ts_diff.sampler import (
-    MostLikelyRefiner,
-    MCMCRefiner,
-    DDPMGuidance,
-    DDIMGuidance,
-)
+import torch
 import uncond_ts_diff.configs as diffusion_configs
+import yaml
+from gluonts.dataset.loader import TrainDataLoader
+from gluonts.evaluation import Evaluator, make_evaluation_predictions
+from gluonts.itertools import Cached
+from gluonts.model.seasonal_naive import SeasonalNaivePredictor
+from gluonts.mx import DeepAREstimator, TransformerEstimator
+from gluonts.torch.batchify import batchify
+from tqdm.auto import tqdm
+from uncond_ts_diff.dataset import get_gts_dataset
+from uncond_ts_diff.model import LinearEstimator, TSDiff
+from uncond_ts_diff.sampler import (
+    DDIMGuidance,
+    DDPMGuidance,
+    MCMCRefiner,
+    MostLikelyRefiner,
+)
+from uncond_ts_diff.utils import (
+    add_config_to_argparser,
+    create_splitter,
+    create_transforms,
+    filter_metrics,
+    get_next_file_num,
+)
+
 
 guidance_map = {"ddpm": DDPMGuidance, "ddim": DDIMGuidance}
 refiner_map = {"most_likely": MostLikelyRefiner, "mcmc": MCMCRefiner}
@@ -69,9 +69,7 @@ def get_best_diffusion_step(model: TSDiff, data_loader, device):
     }
     x, features, scale = model._extract_features(batch)
     for t in range(model.timesteps):
-        loss, _, _ = model.p_losses(
-            x.to(device), torch.tensor([t], device=device)
-        )
+        loss, _, _ = model.p_losses(x.to(device), torch.tensor([t], device=device))
         losses[t] = loss
 
     best_t = ((losses - losses.mean()) ** 2).argmin()
@@ -183,9 +181,7 @@ def main(config: dict, log_dir: str):
     )
     transformed_data = transformation.apply(list(dataset.train), is_train=True)
 
-    transformed_testdata = transformation.apply(
-        list(dataset.test), is_train=False
-    )
+    transformed_testdata = transformation.apply(list(dataset.test), is_train=False)
 
     training_splitter = create_splitter(
         past_length=context_length + max(model.lags_seq),
@@ -233,9 +229,7 @@ def main(config: dict, log_dir: str):
     log_dir = Path(log_dir) / "refinement_logs"
     log_dir.mkdir(exist_ok=True, parents=True)
     base_filename = "results"
-    run_num = get_next_file_num(
-        base_filename, log_dir, file_type="yaml", separator="-"
-    )
+    run_num = get_next_file_num(base_filename, log_dir, file_type="yaml", separator="-")
     save_path = log_dir / f"{base_filename}-{run_num}.yaml"
 
     results = [
@@ -252,7 +246,7 @@ def main(config: dict, log_dir: str):
     n_refiner_configs = len(config["refiner_configs"])
     for i, ref_config in enumerate(config["refiner_configs"]):
         logger.info(
-            f"Running refiner ({i+1}/{n_refiner_configs}): {json.dumps(ref_config)}"
+            f"Running refiner ({i + 1}/{n_refiner_configs}): {json.dumps(ref_config)}"
         )
 
         refiner_config = copy.deepcopy(ref_config)
@@ -301,9 +295,7 @@ def main(config: dict, log_dir: str):
 
 if __name__ == "__main__":
     # Setup Logger
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.INFO)
 

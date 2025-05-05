@@ -1,10 +1,10 @@
-import torch
-import torch.nn as nn
 import numpy as np
-
+import torch
 from src.baselines.tabsyn.model.utils import (
     EDMLoss,
 )
+from torch import nn
+
 
 # ----------------------------------------------------------------------------
 # Loss function corresponding to the variance preserving (VP) formulation

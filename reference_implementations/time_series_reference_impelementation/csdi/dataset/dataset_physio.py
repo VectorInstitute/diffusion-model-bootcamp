@@ -1,10 +1,11 @@
-import pickle
-
 import os
+import pickle
 import re
+
 import numpy as np
 import pandas as pd
 from torch.utils.data import DataLoader, Dataset
+
 
 # 35 attributes which contains enough non-values
 attributes = [
@@ -96,7 +97,7 @@ def parse_id(id_, missing_ratio=0.1):
 def get_idlist():
     patient_id = []
     for filename in os.listdir("./data/physio/set-a"):
-        match = re.search("\d{6}", filename)
+        match = re.search(r"\d{6}", filename)
         if match:
             patient_id.append(match.group())
     patient_id = np.sort(patient_id)
@@ -114,7 +115,7 @@ class Physio_Dataset(Dataset):
         path = (
             "./data/physio_missing" + str(missing_ratio) + "_seed" + str(seed) + ".pk"
         )
-        
+
         if not os.path.exists(path):  # if datasetfile is none, create
             idlist = get_idlist()
             for id_ in idlist:

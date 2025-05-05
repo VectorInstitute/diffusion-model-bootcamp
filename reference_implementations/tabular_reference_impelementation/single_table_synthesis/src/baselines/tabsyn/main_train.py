@@ -1,22 +1,22 @@
-import os
-import torch
-
-from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 import argparse
-import warnings
+import os
 import time
+import warnings
 
-from tqdm import tqdm
-from src.baselines.tabsyn.model.modules import (
-    MLPDiffusion,
-)
+import torch
 from src.baselines.tabsyn.model.gaussian_diffusion import (
     Model,
+)
+from src.baselines.tabsyn.model.modules import (
+    MLPDiffusion,
 )
 from src.baselines.tabsyn.utils import (
     get_input_train,
 )
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
 
 warnings.filterwarnings("ignore")
 
@@ -68,7 +68,7 @@ def main(args):
     start_time = time.time()
     for epoch in range(num_epochs):
         pbar = tqdm(train_loader, total=len(train_loader))
-        pbar.set_description(f"Epoch {epoch+1}/{num_epochs}")
+        pbar.set_description(f"Epoch {epoch + 1}/{num_epochs}")
 
         batch_loss = 0.0
         len_input = 0

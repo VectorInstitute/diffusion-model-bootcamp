@@ -1,8 +1,9 @@
 import pickle
-from torch.utils.data import DataLoader, Dataset
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import torch
+from torch.utils.data import DataLoader, Dataset
 
 
 class PM25_Dataset(Dataset):

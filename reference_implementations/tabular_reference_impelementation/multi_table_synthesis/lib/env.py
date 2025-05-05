@@ -3,14 +3,14 @@ Have not used in TabDDPM project.
 """
 
 import datetime
-import os
 import shutil
 import typing as ty
 from pathlib import Path
 
-PROJ = Path('tab-ddpm/').absolute().resolve()
-EXP = PROJ / 'exp'
-DATA = PROJ / 'data'
+
+PROJ = Path("tab-ddpm/").absolute().resolve()
+EXP = PROJ / "exp"
+DATA = PROJ / "data"
 
 
 def get_path(path: ty.Union[str, Path]) -> Path:
@@ -34,6 +34,6 @@ def duplicate_path(
     dst.parent.mkdir(parents=True, exist_ok=True)
     if dst.exists():
         dst = dst.with_name(
-            dst.name + '_' + datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
+            dst.name + "_" + datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
         )
     (shutil.copytree if src.is_dir() else shutil.copyfile)(src, dst)

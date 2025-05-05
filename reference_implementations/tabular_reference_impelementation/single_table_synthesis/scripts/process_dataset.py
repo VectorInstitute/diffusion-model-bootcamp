@@ -1,8 +1,9 @@
+import argparse
+import json
+import os
+
 import numpy as np
 import pandas as pd
-import os
-import json
-import argparse
 
 
 def preprocess_beijing(info_path):
@@ -116,8 +117,7 @@ def train_val_test_split(data_df, cat_columns, num_train=0, num_test=0):
 
         if flag == 0:
             break
-        else:
-            seed += 1
+        seed += 1
 
     return train_df, test_df, seed
 
@@ -143,8 +143,8 @@ def process_data(name, info_path, data_dir):
         data_df = pd.read_excel(data_path, sheet_name="Data", header=1)
         data_df = data_df.drop("ID", axis=1)
 
-#     if name == "default":
-#         data_df = preprocess_default(data_df)
+    #     if name == "default":
+    #         data_df = preprocess_default(data_df)
 
     num_data = data_df.shape[0]
 
@@ -241,15 +241,15 @@ def process_data(name, info_path, data_dir):
 
     if not os.path.exists(f"{processed_data_dir}/{name}"):
         os.makedirs(f"{processed_data_dir}/{name}")
-    if X_num_train.size> 0: 
+    if X_num_train.size > 0:
         np.save(f"{processed_data_dir}/{name}/X_num_train.npy", X_num_train)
-    if X_cat_train.size> 0: 
-        np.save(f"{processed_data_dir}/{name}/X_cat_train.npy", X_cat_train)    
+    if X_cat_train.size > 0:
+        np.save(f"{processed_data_dir}/{name}/X_cat_train.npy", X_cat_train)
     np.save(f"{processed_data_dir}/{name}/y_train.npy", y_train)
 
-    if X_num_test.size> 0: 
+    if X_num_test.size > 0:
         np.save(f"{processed_data_dir}/{name}/X_num_test.npy", X_num_test)
-    if X_cat_test.size> 0: 
+    if X_cat_test.size > 0:
         np.save(f"{processed_data_dir}/{name}/X_cat_test.npy", X_cat_test)
     np.save(f"{processed_data_dir}/{name}/y_test.npy", y_test)
 

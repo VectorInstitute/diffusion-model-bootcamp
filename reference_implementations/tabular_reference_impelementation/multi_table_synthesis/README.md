@@ -22,7 +22,7 @@ This section includes code structure and description of the files:
     * [metrics.py](./lib/metrics.py) ==> contains the code for metrics used in training.
     * [util.py](./lib/util.py) ==> contains the code for utility functions.
 * [scripts/](./scripts) ==> contains the running scripts.
-    * [train.py](./scripts/train.py) ==> contains the code to train the ClavaDDPM model. 
+    * [train.py](./scripts/train.py) ==> contains the code to train the ClavaDDPM model.
     * [utils_train.py](./scripts/utils_train.py) ==> contains the utility functions used in training.
 * [tab_ddpm/](./tab_ddpm) ==> contains the code for TabDDPM algorithm.
 * [complex_pipeline.py](./complex_pipeline.py)
@@ -38,4 +38,3 @@ This section includes code structure and description of the files:
 To get started with the materials in this topic:
 1. Ensure you have followed the reference to the installation guide and environment setup in `\docs`.
 2. Run the notebook `ClavaDDPM.ipynb` to learn about the ClavaDDPM algorithm and its implementation step by step. Please first make sure to set the kernel to `diffusion_model` in the notebook.
-

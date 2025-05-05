@@ -8,6 +8,7 @@ from urllib import request
 from gluonts.dataset.common import load_datasets
 from gluonts.dataset.repository.datasets import get_dataset, get_download_path
 
+
 default_dataset_path: Path = get_download_path() / "datasets"
 wiki2k_download_link: str = "https://github.com/awslabs/gluonts/raw/b89f203595183340651411a41eeb0ee60570a4d9/datasets/wiki2000_nips.tar.gz"  # noqa: E501
 
@@ -32,5 +33,4 @@ def get_gts_dataset(dataset_name):
             train=wiki_dataset_path / "train",
             test=wiki_dataset_path / "test",
         )
-    else:
-        return get_dataset(dataset_name)
+    return get_dataset(dataset_name)

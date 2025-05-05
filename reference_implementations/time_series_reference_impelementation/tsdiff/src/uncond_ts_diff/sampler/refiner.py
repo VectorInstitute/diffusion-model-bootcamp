@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from gluonts.time_feature import get_seasonality
-
+from torch import nn
 from uncond_ts_diff.predictor import PyTorchPredictorWGrads
 from uncond_ts_diff.sampler._base import (
-    langevin_dynamics,
     hmc,
+    langevin_dynamics,
     udld,
 )
+
 
 PREDICTION_INPUT_NAMES = [
     "past_target",
@@ -53,9 +53,9 @@ class Refiner(torch.nn.Module):
         batch_size = batch_size_x_num_samples // self.num_samples
         # num_samples uniformly distributed quantiles between 0 and 1
         # repeat for each element in the batch
-        q = (torch.arange(self.num_samples).repeat(batch_size) + 1).to(
-            device
-        ) / (self.num_samples + 1)
+        q = (torch.arange(self.num_samples).repeat(batch_size) + 1).to(device) / (
+            self.num_samples + 1
+        )
         # (batch_size x num_samples,)
         q = q[:, None, None]
         # (batch_size x num_samples, 1, 1)
@@ -67,14 +67,11 @@ class Refiner(torch.nn.Module):
         if self.guidance == "MSE":
             return (
                 self.scale
-                * F.mse_loss(y_prediction, obs, reduction="none")[
-                    obs_mask == 1
-                ].sum()
+                * F.mse_loss(y_prediction, obs, reduction="none")[obs_mask == 1].sum()
             )
-        elif self.guidance == "quantile":
+        if self.guidance == "quantile":
             return self.scale * self.quantile_loss(y_prediction, obs).sum()
-        else:
-            raise ValueError(f"Unknown guidance {self.guidance}!")
+        raise ValueError(f"Unknown guidance {self.guidance}!")
 
     def refine(self, observation, observation_mask):
         raise NotImplementedError("Must be implemented by a subclass!")
@@ -120,9 +117,7 @@ class Refiner(torch.nn.Module):
         observation_mask[:, length - self.prediction_length :, 0] = 0
 
         observation = observation.repeat_interleave(self.num_samples, dim=0)
-        observation_mask = observation_mask.repeat_interleave(
-            self.num_samples, dim=0
-        )
+        observation_mask = observation_mask.repeat_interleave(self.num_samples, dim=0)
         if features is not None:
             features = features.repeat_interleave(self.num_samples, dim=0)
 
@@ -133,9 +128,7 @@ class Refiner(torch.nn.Module):
 
             if init_forecasts.shape[1] == 1:
                 # Single sample, e.g., for SeasonalNaive
-                init_forecasts = np.tile(
-                    init_forecasts, (1, self.num_samples, 1)
-                )
+                init_forecasts = np.tile(init_forecasts, (1, self.num_samples, 1))
 
             # create numpy array out of list and sort them to
             # match to their corresponding quantile
@@ -147,9 +140,7 @@ class Refiner(torch.nn.Module):
 
             # reshape from B x num_samples x prediction_length to
             # B * self.num_samples x prediction_length
-            init = init.reshape(
-                batch_size * self.num_samples, self.prediction_length
-            )
+            init = init.reshape(batch_size * self.num_samples, self.prediction_length)
 
             # use it as initial guess
             observation[:, length - self.prediction_length :, 0] = init
@@ -160,21 +151,16 @@ class Refiner(torch.nn.Module):
             # Initialize using Seasonal Naive predictions
             if (length - self.prediction_length) >= season_length:
                 indices = [
-                    length
-                    - self.prediction_length
-                    - season_length
-                    + k % season_length
+                    length - self.prediction_length - season_length + k % season_length
                     for k in range(self.prediction_length)
                 ]
-                observation[
-                    :, length - self.prediction_length :, 0
-                ] = observation[:, indices, 0]
+                observation[:, length - self.prediction_length :, 0] = observation[
+                    :, indices, 0
+                ]
 
             # Initialize using the meant of the context length
             else:
-                observation[
-                    :, length - self.prediction_length :, 0
-                ] = torch.mean(
+                observation[:, length - self.prediction_length :, 0] = torch.mean(
                     observation[:, : length - self.prediction_length, 0],
                     dim=1,
                     keepdim=True,
@@ -241,9 +227,9 @@ class MostLikelyRefiner(Refiner):
                 ).long()
                 if self.fixed_t != -1:
                     t = t * 0 + self.fixed_t
-                loss = self.model.p_losses(
-                    seq, t, loss_type="l2", reduction="sum"
-                )[0] + self.prior(seq, observation, observation_mask)
+                loss = self.model.p_losses(seq, t, loss_type="l2", reduction="sum")[
+                    0
+                ] + self.prior(seq, observation, observation_mask)
                 loss.backward()
 
                 optim.step()
@@ -323,9 +309,7 @@ class MCMCRefiner(Refiner):
                     "n_leapfrog_steps": 5,
                 }
                 method_kwargs.update(self.method_kwargs)
-                seq = hmc(
-                    seq, energy_func, step_size=self.step_size, **method_kwargs
-                )
+                seq = hmc(seq, energy_func, step_size=self.step_size, **method_kwargs)
             elif self.method == "udld":
                 method_kwargs = {
                     "mass": 1.0,
@@ -334,9 +318,7 @@ class MCMCRefiner(Refiner):
                     "n_leapfrog_steps": 5,
                 }
                 method_kwargs.update(self.method_kwargs)
-                seq = udld(
-                    seq, energy_func, step_size=self.step_size, **method_kwargs
-                )
+                seq = udld(seq, energy_func, step_size=self.step_size, **method_kwargs)
             elif self.method == "cdld":
                 method_kwargs = {
                     "mass": 1.0,
@@ -346,9 +328,7 @@ class MCMCRefiner(Refiner):
                 method_kwargs.update(self.method_kwargs)
                 # friction^2 = 4 x mass
                 method_kwargs["friction"] = np.sqrt(4 * method_kwargs["mass"])
-                seq = udld(
-                    seq, energy_func, step_size=self.step_size, **method_kwargs
-                )
+                seq = udld(seq, energy_func, step_size=self.step_size, **method_kwargs)
 
         return seq.detach()
 

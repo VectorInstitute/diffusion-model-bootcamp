@@ -34,4 +34,4 @@ This section includes code structure and description of the files:
 To start working with the materials and code in this topic:
 1. Ensure you have followed the reference to the installation guide and environment setup in \docs.
 2. Move to notebook `csdi_imputation.ipynb` to learn about CSDI algorithm and its implementation to imputation. Please first make sure to set the kernel to `diffusion_model` in the notebook. Further run the code to download data.
-3. Move to notebook `csdi_forecasting.ipynb` to learn about the implementation of CSDI to forecasting task. Please first make sure to set the kernel to `diffusion_model` in the notebook. 
+3. Move to notebook `csdi_forecasting.ipynb` to learn about the implementation of CSDI to forecasting task. Please first make sure to set the kernel to `diffusion_model` in the notebook.

@@ -1,13 +1,17 @@
 import argparse
-import torch
 import datetime
 import json
-import yaml
 import os
 
-from main_model import CSDI_Physio
+import torch
+import yaml
 from dataset.dataset_physio import get_dataloader
-from diffusion_model_bootcamp.reference_implementations.time_series_reference_impelementation.CSDI.util.utils import train, evaluate
+from diffusion_model_bootcamp.reference_implementations.time_series_reference_impelementation.CSDI.util.utils import (
+    evaluate,
+    train,
+)
+from main_model import CSDI_Physio
+
 
 parser = argparse.ArgumentParser(description="CSDI")
 parser.add_argument("--config", type=str, default="base.yaml")

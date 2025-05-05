@@ -3,26 +3,27 @@ Based on https://github.com/openai/guided-diffusion/blob/main/guided_diffusion
 and https://github.com/ehoogeboom/multinomial_diffusion
 """
 
-import torch.nn.functional as F
-import torch
 import math
 
 import numpy as np
+import torch
+import torch.nn.functional as F
 from src.baselines.tabddpm.model.utils import (
-    normal_kl,
+    FoundNANsError,
+    default,
+    discretized_gaussian_log_likelihood,
+    extract,
+    index_to_log_onehot,
+    log_1_min_a,
     log_add_exp,
     log_categorical,
-    log_1_min_a,
-    extract,
     mean_flat,
-    discretized_gaussian_log_likelihood,
-    sliced_logsumexp,
-    default,
-    index_to_log_onehot,
-    sum_except_batch,
+    normal_kl,
     ohe_to_categories,
-    FoundNANsError,
+    sliced_logsumexp,
+    sum_except_batch,
 )
+
 
 """
 Based in part on: https://github.com/lucidrains/denoising-diffusion-pytorch/blob/5989f4c77eafcdc6be0fb4739f0f277a6dd7f7d8/denoising_diffusion_pytorch/denoising_diffusion_pytorch.py#L281
@@ -47,13 +48,12 @@ def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
         return np.linspace(
             beta_start, beta_end, num_diffusion_timesteps, dtype=np.float64
         )
-    elif schedule_name == "cosine":
+    if schedule_name == "cosine":
         return betas_for_alpha_bar(
             num_diffusion_timesteps,
             lambda t: math.cos((t + 0.008) / 1.008 * math.pi / 2) ** 2,
         )
-    else:
-        raise NotImplementedError(f"unknown beta schedule: {schedule_name}")
+    raise NotImplementedError(f"unknown beta schedule: {schedule_name}")
 
 
 def betas_for_alpha_bar(num_diffusion_timesteps, alpha_bar, max_beta=0.999):
@@ -291,7 +291,9 @@ class GaussianMultinomialDiffusion(torch.nn.Module):
 
         assert (
             model_mean.shape == model_log_variance.shape == pred_xstart.shape == x.shape
-        ), f"{model_mean.shape}, {model_log_variance.shape}, {pred_xstart.shape}, {x.shape}"
+        ), (
+            f"{model_mean.shape}, {model_log_variance.shape}, {pred_xstart.shape}, {x.shape}"
+        )
 
         return {
             "mean": model_mean,
@@ -628,13 +630,12 @@ class GaussianMultinomialDiffusion(torch.nn.Module):
 
             return t, pt
 
-        elif method == "uniform":
+        if method == "uniform":
             t = torch.randint(0, self.num_timesteps, (b,), device=device).long()
 
             pt = torch.ones_like(t).float() / self.num_timesteps
             return t, pt
-        else:
-            raise ValueError
+        raise ValueError
 
     def _multinomial_loss(self, model_out, log_x_start, log_x_t, t, pt):
         if self.multinomial_loss_type == "vb_stochastic":
@@ -646,33 +647,31 @@ class GaussianMultinomialDiffusion(torch.nn.Module):
 
             return vb_loss
 
-        elif self.multinomial_loss_type == "vb_all":
+        if self.multinomial_loss_type == "vb_all":
             # Expensive, dont do it ;).
             # DEPRECATED
             return -self.nll(log_x_start)
-        else:
-            raise ValueError()
+        raise ValueError
 
     def log_prob(self, x):
         b, device = x.size(0), x.device
         if self.training:
             return self._multinomial_loss(x)
 
-        else:
-            log_x_start = index_to_log_onehot(x, self.num_classes)
+        log_x_start = index_to_log_onehot(x, self.num_classes)
 
-            t, pt = self.sample_time(b, device, "importance")
+        t, pt = self.sample_time(b, device, "importance")
 
-            kl = self.compute_Lt(
-                log_x_start, self.q_sample(log_x_start=log_x_start, t=t), t
-            )
+        kl = self.compute_Lt(
+            log_x_start, self.q_sample(log_x_start=log_x_start, t=t), t
+        )
 
-            kl_prior = self.kl_prior(log_x_start)
+        kl_prior = self.kl_prior(log_x_start)
 
-            # Upweigh loss term of the kl
-            loss = kl / (pt + 1e-6) + kl_prior
+        # Upweigh loss term of the kl
+        loss = kl / (pt + 1e-6) + kl_prior
 
-            return -loss
+        return -loss
 
     @torch.no_grad()
     def loss_at_step_t(self, x, step):

@@ -1,14 +1,13 @@
-import numpy as np
-import torch
-import pandas as pd
+import argparse
 import json
-
 import os
 import sys
 
+import numpy as np
+import pandas as pd
+import torch
 from sklearn.preprocessing import OneHotEncoder
 
-import argparse
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

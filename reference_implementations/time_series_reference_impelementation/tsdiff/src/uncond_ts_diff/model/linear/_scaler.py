@@ -55,9 +55,7 @@ class MeanScaler:
             axis=self.axis,
         )
 
-        return data / scale, scale if self.keepdims else scale.squeeze(
-            axis=self.axis
-        )
+        return data / scale, scale if self.keepdims else scale.squeeze(axis=self.axis)
 
 
 class NOPScaler:

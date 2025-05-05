@@ -1,14 +1,14 @@
-import numpy as np
-import pandas as pd
+import argparse
+import json
 import os
 import sys
-import json
 
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from synthcity.metrics import eval_statistical
 from synthcity.plugins.core.dataloader import GenericDataLoader
 
-import argparse
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
