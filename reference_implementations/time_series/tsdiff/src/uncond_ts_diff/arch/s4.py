@@ -40,8 +40,6 @@ def get_logger(name=__name__, level=logging.INFO) -> logging.Logger:
 
 log = get_logger(__name__)
 
-""" Cauchy and Vandermonde kernels """
-
 try:  # Try CUDA extension
     from extensions.cauchy.cauchy import cauchy_mult
 
@@ -212,10 +210,8 @@ else:
         return x.conj()
 
 
-""" Simple nn.Module components """
-
-
 def Activation(activation=None, dim=-1):
+    """Returns an activation function nn.Module"""
     if activation in [None, "id", "identity", "linear"]:
         return nn.Identity()
     if activation == "tanh":
@@ -286,9 +282,6 @@ class DropoutNd(nn.Module):
         return X
 
 
-""" Misc functional utilities """
-
-
 def power(L, A, v=None):
     """Compute A^L and the scan sum_i A^i v_i
 
@@ -332,9 +325,6 @@ def power(L, A, v=None):
         v = rearrange(v, "... (z l) -> ... z l", z=2)
         v = v[..., 0, :] + powers.pop() @ v[..., 1, :]
     return I, v.squeeze(-1)
-
-
-""" HiPPO utilities """
 
 
 def transition(measure, N):

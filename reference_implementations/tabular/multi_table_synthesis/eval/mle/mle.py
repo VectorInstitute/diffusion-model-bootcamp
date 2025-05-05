@@ -175,7 +175,7 @@ def feat_transform(
     features = []
 
     if not encoders:
-        encoders = dict()
+        encoders = {}
     for idx in range(num_cols):
         col = train_concatenated[:, idx]
         data_col = data[:, idx]
@@ -273,7 +273,7 @@ class FeatureMaker:
         self.label_column = label_column
         self.label_type = label_type
         self.sample = sample
-        self.encoders = dict()
+        self.encoders = {}
 
     def make_features(self, data):
         data = data.copy()

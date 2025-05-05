@@ -48,7 +48,7 @@ def _load_file(filename, loader):
 
 
 def _get_columns(metadata):
-    categorical_columns = list()
+    categorical_columns = []
 
     for column_idx, column in enumerate(metadata["columns"]):
         if column["type"] == CATEGORICAL:

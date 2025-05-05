@@ -1,6 +1,7 @@
 """
 Based on https://github.com/openai/guided-diffusion/blob/main/guided_diffusion
 and https://github.com/ehoogeboom/multinomial_diffusion
+Based in part on: https://github.com/lucidrains/denoising-diffusion-pytorch/blob/5989f4c77eafcdc6be0fb4739f0f277a6dd7f7d8/denoising_diffusion_pytorch/denoising_diffusion_pytorch.py#L281
 """
 
 import math
@@ -25,9 +26,6 @@ from src.baselines.tabddpm.model.utils import (
 )
 
 
-"""
-Based in part on: https://github.com/lucidrains/denoising-diffusion-pytorch/blob/5989f4c77eafcdc6be0fb4739f0f277a6dd7f7d8/denoising_diffusion_pytorch/denoising_diffusion_pytorch.py#L281
-"""
 eps = 1e-8
 
 

@@ -8,7 +8,7 @@ CONTINUOUS = "continuous"
 
 class Transformer:
     @staticmethod
-    def get_metadata(data, categorical_columns=tuple()):
+    def get_metadata(data, categorical_columns=()):
         meta = []
 
         df = pd.DataFrame(data)
@@ -37,7 +37,7 @@ class Transformer:
 
         return meta
 
-    def fit(self, data, categorical_columns=tuple()):
+    def fit(self, data, categorical_columns=()):
         raise NotImplementedError
 
     def transform(self, data):
@@ -53,7 +53,7 @@ class GeneralTransformer(Transformer):
         self.meta = None
         self.output_dim = None
 
-    def fit(self, data, categorical_columns=tuple()):
+    def fit(self, data, categorical_columns=()):
         self.meta = self.get_metadata(data, categorical_columns)
         self.output_dim = 0
         for info in self.meta:

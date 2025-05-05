@@ -35,15 +35,12 @@ To get started with this bootcamp:
 # Install uv if you don't have it already
 curl -sL https://github.com/astral-sh/uv/releases/download/0.1.25/uv-installer.sh | bash
 
-# Create a virtual environment (Python 3.9 required)
+# Create a virtual environment (Python >=3.11 required)
 uv venv
 source .venv/bin/activate
 
 # Install dependencies with default groups
-uv pip install -e .
-
-# If your system is not compatible with pykeops, you can uninstall it
-uv pip uninstall pykeops
+uv sync
 
 # Install the kernel for jupyter (only need to do it once)
 ipython kernel install --user --name=diffusion_models
