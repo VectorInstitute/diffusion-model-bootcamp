@@ -48,10 +48,10 @@ ipython kernel install --user --name=diffusion_models
 3. Begin with each topic in the `implementations/` directory, as guided by the README files.
 
 ## License
-This project is licensed under the terms of the [LICENSE] file located in the root directory of this repository.
+This project is licensed under the terms of the [LICENSE.md](LICENSE.md) file located in the root directory of this repository.
 
 ## Contribution
-To get started with contributing to our project, please read our [CONTRIBUTING.md] guide.
+To get started with contributing to our project, please read our [CONTRIBUTING.md](CONTRIBUTING.md) guide.
 
 ## Contact Information
 
