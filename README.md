@@ -9,13 +9,13 @@ Diffusion models are a class of generative models that have shown promising resu
 ## Repository Structure
 
 - **docs/**: Contains detailed documentation, additional resources, installation guides, and setup instructions that are not covered in this README.
-- **reference_implementations/**: Reference Implementations are organized by topics. Each topic has its own directory containing codes, notebooks, and a README for guidance.
+- **implementations/**: Implementations are organized by topics. Each topic has its own directory containing codes, notebooks, and a README for guidance.
 - **pyproject.toml**: The `pyproject.toml` file in this repository configures various build system requirements and dependencies using uv, centralizing project settings in a standardized format.
 
 
-### Reference Implementations Directory
+### Implementations Directory
 
-Each topic within the bootcamp has a dedicated directory in the `reference_implementations/` directory. In each directory, there is a README file that provides an overview of the topic, prerequisites, and notebook descriptions.
+Each topic within the bootcamp has a dedicated directory in the `implementations/` directory. In each directory, there is a README file that provides an overview of the topic, prerequisites, and notebook descriptions.
 
 Here is the list of the covered topics:
 - Tabular Data
@@ -45,7 +45,7 @@ uv sync
 # Install the kernel for jupyter (only need to do it once)
 ipython kernel install --user --name=diffusion_models
 ```
-3. Begin with each topic in the `reference_implementations/` directory, as guided by the README files.
+3. Begin with each topic in the `implementations/` directory, as guided by the README files.
 
 ## License
 This project is licensed under the terms of the [LICENSE] file located in the root directory of this repository.
