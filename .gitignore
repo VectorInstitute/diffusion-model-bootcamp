@@ -1,16 +1,35 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Lint & Test
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# VS Code
+.vscode
+
+# MacOS
+*.DS_Store
+
+# Jupyter Notebook
+**.ipynb_checkpoints
 *.err
 *.out
 
-# Byte-compiled
-__pycache__/
-
-# data files
+# Data
 data/
 
-# model files
+# Models
 models/
 
-# imputed data files
+# Imputed data files
 impute/
-
-*.DS_Store
