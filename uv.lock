@@ -3798,18 +3798,19 @@ wheels = [
 
 [[package]]
 name = "rdt"
-version = "1.16.0"
+version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "faker" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "python-dateutil" },
     { name = "scikit-learn" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6c/6e/3117df3e1e7e604c318b731c3b126b27d4c3395ccaa023a189155f77b0ca/rdt-1.16.0.tar.gz", hash = "sha256:7d980643e16b6293c589ee194d480c53a630d7bca28ff4c89621565bdb12c8c3", size = 60624 }
+sdist = { url = "https://files.pythonhosted.org/packages/3e/3c/66f46c7ea2b255529aeb401a24a94e281464c328a523f76e68e793a7538c/rdt-1.17.0.tar.gz", hash = "sha256:d343c8682242c626b486fe9809c8608bc87ac12c0aa4915186391ef2ab49a5d8", size = 64936 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/16/7c/becac1b95a8619cffadb36918e3289740c09f8c31f48f424b1489aee0f32/rdt-1.16.0-py3-none-any.whl", hash = "sha256:1f3c0b781f64f8c1dc1367754f9500b383a05ce3fed494b90153ecefe1e11c26", size = 69252 },
+    { url = "https://files.pythonhosted.org/packages/9d/03/03679b99a798ac7d3e4efa6b77e05f7b48bb867c4d968786dde4a2f34572/rdt-1.17.0-py3-none-any.whl", hash = "sha256:bd765b38fb32d5742c83cb5f86e1f339764c6bacd7f495a231e307af044647fc", size = 73821 },
 ]
 
 [[package]]
