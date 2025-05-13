@@ -1,7 +1,7 @@
 [project]
-name = "diffusion-models-bootcamp"
+name = "diffusion-models"
 version = "0.1.0"
-description = "Diffusion models for tabular data and time series"
+description = "A repository with demos for various diffusion models for tabular and time series data"
 readme = "README.md"
 authors = [{name = "Vector AI Engineering", email = "fl4health@vectorinstitute.ai"}]
 requires-python = ">=3.11.0,<3.13"
