@@ -8,6 +8,6 @@
     "target_col_idx": [23],
 
     "file_type": "xls",
-    "data_path": "/Users/amritkrishnan/src/diffusion-models/implementations/tabular/single_table_synthesis/data/raw_data/default/default of credit card clients.xls",
+    "data_path": "/projects/diffusion_bootcamp/data/tabular/raw_data/default/default of credit card clients.xls",
     "test_path": null
 }
